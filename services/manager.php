@@ -17,6 +17,7 @@ if (isset($_POST['folder_name']) && !empty($_POST['folder_name'])) {
     $folder_location = clean($_POST['__P_F__']);
 
     $folder_path = '';
+    $parent_id = 0;
 
     //checking if folder created inside another folder
     if ($folder_location) {
@@ -31,6 +32,7 @@ if (isset($_POST['folder_name']) && !empty($_POST['folder_name'])) {
         }
 
         $folder_path = $check_folder->path;
+        $parent_id = $check_folder->id;
     }
 
     //checking if user cross the nested folder limit
@@ -59,6 +61,7 @@ if (isset($_POST['folder_name']) && !empty($_POST['folder_name'])) {
     $create = ORM::for_table('folders')->create(array(
         'uuid' => uuidv4(),
         'path' => $folder_path,
+        'parent_id' => $parent_id,
         'title' => $folder_name,
         'user_id' => session()->get('user_id'),
         'date_added' => time(),

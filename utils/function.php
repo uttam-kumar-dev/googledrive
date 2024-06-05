@@ -114,7 +114,7 @@ function breadcrumbs()
         $fd = clean($_GET['fd']);
     }
 
-    $breadcrumbs = 'Home';
+    $breadcrumbs = '';
 
     if ($fd) {
 
