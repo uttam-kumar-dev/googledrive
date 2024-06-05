@@ -141,7 +141,7 @@ function breadcrumbs()
             foreach ($get_folders as $k =>  $f) {
 
                 if ($folder_count == $k + 1) {
-                    $breadcrumbs .= ' > '.$f->title;
+                    $breadcrumbs .= ' > ' . $f->title;
                     break;
                 }
                 $breadcrumbs .= ' > <a href="' . BASE_URL . 'pages/home.php?fd=' . $f->uuid . '">' . $f->title . '</a>';
@@ -152,4 +152,58 @@ function breadcrumbs()
     }
 
     return $breadcrumbs;
+}
+
+function getSizeAll($return_string = false){
+
+    $all_size = ORM::for_table('folders')->where('user_id', session()->get('user_id'))->where('is_deleted',0)->sum('size');
+    $kb = $all_size/(1024); //kb
+    $mb = $all_size/(1024*1024); //mb
+    $gb = $all_size/(1024*1024*1024); //gb
+
+    if(!$return_string) return $gb;
+
+    if($gb >= 1){
+        return round($gb,1).' GB';
+    }else if($mb >= 1){
+        return round($mb,1).' MB';
+    }else if($kb >= 1){
+        return round($kb,1).' KB';
+    }
+
+}
+
+function timeAgo(int $timestamp)
+{
+    $current_time = time();
+    $time_difference = $current_time - $timestamp;
+
+    $label = '';
+    if($time_difference >= (60 * 60 * 24 * 365)){
+        $label = round($time_difference/(60 * 60 * 24 * 365),1).' years ago';
+
+    }else if($time_difference >= (60 * 60 * 24 * 30)){
+        $label = floor($time_difference/(60 * 60 * 24 * 30)).' month ago';
+
+    }else if($time_difference >= (60 * 60 * 24 * 7)){
+        $label = floor($time_difference/(60 * 60 * 24 * 7)).' week ago';
+
+    }else if($time_difference >= (60 * 60 * 24)){
+        $label = floor($time_difference/(60 * 60 * 24)).' day ago';
+
+    }else if($time_difference >= (60 * 60)){
+        $label = floor($time_difference/(60 * 60)).' hour ago';
+
+    }else if($time_difference >= 60){
+        $label = floor($time_difference/60).' minute ago';
+
+    }else if($time_difference > 10){
+        $label = $time_difference.' seconds ago';
+
+    }else{
+        $label = 'Just now';
+    }
+
+    
+    return $label;
 }

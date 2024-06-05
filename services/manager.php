@@ -42,17 +42,27 @@ if (isset($_POST['folder_name']) && !empty($_POST['folder_name'])) {
     if (count($depth_count) == getenv('MAX_FOLDER_DEPTH')) {
         $error['error'] = 'You can create only ' . getenv('MAX_FOLDER_DEPTH') . ' nested folder';
         session()->set_flash_message($error);
+
+        if (session()->has('current_url')) {
+            header('location:' . session()->get('current_url'));
+            exit;
+        }
         header('location:../pages/home.php');
         exit;
     }
 
     //checking if folder exists with same name and same location
 
-    $check = ORM::for_table('folders')->where('path', $folder_path)->where('title', $folder_name)->where('user_id', session()->get('user_id'))->where('is_deleted', 0)->find_one();
+    $check = ORM::for_table('folders')->where('parent_id', $parent_id)->where('title', $folder_name)->where('user_id', session()->get('user_id'))->where('is_deleted', 0)->find_one();
 
     if ($check) {
         $error['error'] = 'The folder name already exists';
         session()->set_flash_message($error);
+
+        if (session()->has('current_url')) {
+            header('location:' . session()->get('current_url'));
+            exit;
+        }
         header('location:../pages/home.php');
         exit;
     }
@@ -80,6 +90,11 @@ if (isset($_POST['folder_name']) && !empty($_POST['folder_name'])) {
         $error['error'] = 'There are some error occured during folder creation';
         session()->set_flash_message($error);
         handle_errors($e);
+    }
+
+    if (session()->has('current_url')) {
+        header('location:' . session()->get('current_url'));
+        exit;
     }
 
     header('location:../pages/home.php');

@@ -51,7 +51,7 @@
                                     <p class="text-muted text-truncate mb-0"><?= $f->files; ?> Files</p>
                                 </div>
                                 <div class="align-self-end ms-2">
-                                    <p class="text-muted mb-0 font-size-13"><i class="mdi mdi-clock"></i> 15 min ago</p>
+                                    <p class="text-muted mb-0 font-size-13"><i class="mdi mdi-clock"></i> <?= timeAgo($f->last_updated); ?></p>
                                 </div>
                             </div>
                         </div>

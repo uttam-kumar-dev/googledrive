@@ -2,6 +2,8 @@
 
 is_logged_in(true);
 
+session()->set('current_url', $_SERVER['REQUEST_URI']);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -68,11 +70,11 @@ is_logged_in(true);
 
                             <li class="nav-item">
                                 <div class="progress animated-progess custom-progress mt-3 mb-1" style="height: 5px;">
-                                    <div class="progress-bar bg-gradient bg-primary" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="90">
+                                    <div class="progress-bar bg-gradient bg-primary" role="progressbar" style="width: <?= getSizeAll(); ?>%" aria-valuenow="<?= getSizeAll(); ?>" aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
 
-                                <p class="text-muted">0 MB of 15 GB used</p>
+                                <p class="text-muted"><?= getSizeAll(true); ?> of 15 GB used</p>
                             </li>
 
                         </ul>
