@@ -157,6 +157,10 @@ function breadcrumbs()
 function getSizeAll($return_string = false){
 
     $all_size = ORM::for_table('folders')->where('user_id', session()->get('user_id'))->where('is_deleted',0)->sum('size');
+    $file_size = ORM::for_table('files')->where('user_id', session()->get('user_id'))->where('is_deleted',0)->sum('size');
+
+    $all_size+=$file_size;
+
     $kb = $all_size/(1024); //kb
     $mb = $all_size/(1024*1024); //mb
     $gb = $all_size/(1024*1024*1024); //gb
