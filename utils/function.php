@@ -211,3 +211,37 @@ function timeAgo(int $timestamp)
     
     return $label;
 }
+
+function get_file_icon($mime_type){
+
+    $file_icons = [
+        'application/pdf' => 'bx bxs-file-pdf',
+        'application/msword' => 'bx bxs-file-doc',
+        'application/vnd.ms-excel' => 'bx bxs-file-excel',
+        'application/vnd.ms-powerpoint' => 'bx bxs-file-ppt',
+        'application/zip' => 'bx bxs-file-archive',
+        'image/jpeg' => 'bx bxs-file-image',
+        'image/png' => 'bx bxs-file-image',
+        'image/gif' => 'bx bxs-file-image',
+        'text/plain' => 'bx bxs-file-alt',
+        'application/json' => 'bx bxs-file-code',
+        'application/xml' => 'bx bxs-file-code',
+        'text/html' => 'bx bxs-file-code',
+        'application/javascript' => 'bx bxs-file-code',
+        'text/css' => 'bx bxs-file-code',
+        'application/x-php' => 'bx bxs-file-code',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'bx bxs-file-doc',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'bx bxs-file-ppt',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'bx bxs-file-excel',
+        'audio/mpeg' => 'bx bxs-music',
+        'audio/wav' => 'bx bxs-music',
+        'video/mp4' => 'bx bxs-play',
+        'video/quicktime' => 'bx bxs-play',
+        'application/ogg' => 'bx bxs-play',
+    ];
+    
+
+    $unknown_icon = 'bx bx-unknown';
+
+    return isset($file_icons[$mime_type]) ? $file_icons[$mime_type] : $unknown_icon;
+}
