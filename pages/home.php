@@ -17,6 +17,10 @@ session()->set('current_url', $_SERVER['REQUEST_URI']);
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
     <link rel="stylesheet" type="text/css" href="<?= assets('css/style.css'); ?>">
+
+    <script>
+        const BASE_URL = '<?= BASE_URL ?>';
+    </script>
 </head>
 
 <body>
@@ -113,7 +117,7 @@ session()->set('current_url', $_SERVER['REQUEST_URI']);
                                                         </button>
                                                         <div class="dropdown-menu dropdown-menu-end">
                                                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#create_folder"><i class="mdi mdi-folder-outline me-1"></i> Folder</a>
-                                                            <a class="dropdown-item" href="#"><i class="mdi mdi-file-outline me-1"></i> File</a>
+                                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#upload_files"><i class="mdi mdi-file-outline me-1"></i> File</a>
                                                         </div>
 
 
@@ -270,11 +274,11 @@ session()->set('current_url', $_SERVER['REQUEST_URI']);
                                     </div>
                                     <!-- end row -->
 
-                                    <?php if(isset($_GET['fd']) && !empty($_GET['fd'])){ 
+                                    <?php if (isset($_GET['fd']) && !empty($_GET['fd'])) {
                                         require_once 'folders.php';
-                                     }else{
+                                    } else {
                                         require_once 'recent_folders.php';
-                                     } ?>
+                                    } ?>
                                     <!-- end row -->
                                     <div class="d-flex flex-wrap">
                                         <h5 class="font-size-16 me-3">Recent Files</h5>
@@ -662,6 +666,8 @@ session()->set('current_url', $_SERVER['REQUEST_URI']);
 
 
     <!-- MODALS -->
+
+    <!-- MODAl for add folder -->
     <div class="modal" tabindex="-1" id="create_folder">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -692,15 +698,87 @@ session()->set('current_url', $_SERVER['REQUEST_URI']);
             </div>
         </div>
     </div>
+    <!-- Modal end here -->
+
+    <!-- Modal for upload files -->
+    <div class="modal" tabindex="-1" id="upload_files">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Files</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" id="file_upload_form" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="card border-dashed shadow-none">
+                            <div class="card-body py-5">
+                                <div class="text-center">
+
+                                    <label for="file_input" class="d-block" role="button">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 24 24" style="fill: #dbdbdb;">
+                                            <path d="M13 19v-4h3l-4-5-4 5h3v4z"></path>
+                                            <path d="M7 19h2v-2H7c-1.654 0-3-1.346-3-3 0-1.404 1.199-2.756 2.673-3.015l.581-.102.192-.558C8.149 8.274 9.895 7 12 7c2.757 0 5 2.243 5 5v1h1c1.103 0 2 .897 2 2s-.897 2-2 2h-3v2h3c2.206 0 4-1.794 4-4a4.01 4.01 0 0 0-3.056-3.888C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5z"></path>
+                                        </svg>
+                                        <input type="file" class="d-none" name="files[]" multiple id="file_input">
+
+                                        <span class="fs-3 text-gray d-block">Choose Files</span>
+                                    </label>
+
+                                    <p class="small mb-0 mt-2"><b>Note:</b> Make sure the file must be less than 20MB, and you can select up to 10 files at once </p>
+
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="file_progress_bar" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="reset" class="btn btn-secondary">Reset</button>
+                        <button type="submit" id="upload_file_btn" data-bs-dismiss="modal" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal end here -->
+
     <!-- END MODALS -->
 
+    <div class="position-fixed end-0 bottom-0 w-25 mh-100 d-none" id="file_upload_sidebar">
+        <div class="card border shadow rounded-1">
+            <div class="card-header" id="file_upload_header" data-bs-toggle="collapse" data-bs-target="#file_accordian" aria-expanded="false" aria-controls="file_accordian">
+                <div class="header-status">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                    </div> Uploading Files..
+                </div>
+
+                <div class="completed d-none justify-content-between">
+                    <span class="d-block">Completed</span>
+                    <span class="d-block" role="button" onclick="closeFileProgressBar()">X</span>
+                </div>
+            </div>
+
+            <div class="accordion" id="accordian_files_upload">
+                <div class="accordion-item rounded-0 border-top-0">
+                    <div id="file_accordian" class="accordion-collapse collapse" aria-labelledby="file_accordian" data-bs-parent="#accordian_files_upload">
+                        <div class="p-3" style="overflow-y:scroll;max-height:100vh" id="file_progress_bar_container">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="<?= assets('js/file-upload.js'); ?>"></script>
     <script>
         <?php if (session()->has('open_modal', true)) { ?>
-        var myModal = new bootstrap.Modal(document.getElementById('<?= session()->get_flash_message('modal_id'); ?>'));
-        myModal.show();
+            var myModal = new bootstrap.Modal(document.getElementById('<?= session()->get_flash_message('modal_id'); ?>'));
+            myModal.show();
         <?php } ?>
     </script>
 </body>

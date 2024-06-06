@@ -159,3 +159,42 @@ a {
 .w-inherit{
     width: inherit;
 }
+.border-dashed{
+    border: 3px dashed #eff0f2;
+}
+.h-5px{
+    height: 5px!important;
+}
+
+/* For WebKit based browsers (e.g., Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 5px; /* Adjust the width as needed */
+}
+
+/* For Mozilla Firefox */
+::-moz-scrollbar {
+    width: 5px; /* Adjust the width as needed */
+}
+
+/* For Internet Explorer and Microsoft Edge */
+/* Note: This is for Edge Legacy (EdgeHTML) */
+/* For Edge Chromium, you might need different CSS */
+/* See: https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-width */
+::-ms-scrollbar {
+    width: 5px; /* Adjust the width as needed */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Color of the track */
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888; /* Color of the handle */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color of the handle on hover */
+}
