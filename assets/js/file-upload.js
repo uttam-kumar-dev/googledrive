@@ -35,7 +35,8 @@ form.addEventListener('submit', (event) => {
 function uploadFile(file, index) {
 
     var formData = new FormData();
-    formData.append('files', file);
+    formData.append('file', file);
+    formData.append('path',CURRENT_FOLDER);
 
     var progressBarId = `id_file_${index}`;
 

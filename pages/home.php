@@ -20,6 +20,7 @@ session()->set('current_url', $_SERVER['REQUEST_URI']);
 
     <script>
         const BASE_URL = '<?= BASE_URL ?>';
+        const CURRENT_FOLDER = '<?= isset($_GET['fd']) ? $_GET['fd'] : '' ?>';
     </script>
 </head>
 
