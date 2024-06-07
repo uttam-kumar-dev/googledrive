@@ -5,24 +5,6 @@ is_logged_in(true);
 session()->set('current_url', $_SERVER['REQUEST_URI']);
 
 
-foreach ($st as $store_id) {
-
-    $private = ORM::for_table('shared_reservation_2')->where('status', 1)->where('store_id', $store_id)->where('reservation_date', $date)->find_many();
-
-    foreach ($private as $p) {
-        $booked_slot[] = $p->id;
-    }
-
-    $diff = array_diff($slot_arr, $booked_slot);
-
-    if (!empty($diff)) {
-
-        $private_available = true;
-        break 2;
-        
-    }
-}
-
 
 ?>
 <!DOCTYPE html>
@@ -74,7 +56,7 @@ foreach ($st as $store_id) {
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2" href="<?= BASE_URL ?>pages/home.php?page=starred"> <i class="mdi mdi-star-outline me-1"></i>Starred</a>
+                                <a class="nav-link rounded-pill px-2" href="<?= BASE_URL?>pages/home.php?page=starred"> <i class="mdi mdi-star-outline me-1"></i>Starred</a>
                             </li>
 
                             <li>
@@ -112,8 +94,8 @@ foreach ($st as $store_id) {
                         <div class="col-xl-12">
                             <div class="card">
                                 <div class="card-body">
-
-                                    <div class="row mb-3">
+                                    
+                                <div class="row mb-3">
                                         <div class="col-lg-4 col-sm-6">
                                             <div class="search-box mb-2 me-2">
                                                 <div class="position-relative">
@@ -164,12 +146,12 @@ foreach ($st as $store_id) {
                                     </div>
 
                                     <h5 class="font-size-16 me-3 mb-3"><?= breadcrumbs(); ?></h5>
-
+                                    
 
                                     <?php init_page(); ?>
-
+                                    
                                     <!-- end row -->
-
+                                   
 
                                 </div>
                             </div>
@@ -296,7 +278,7 @@ foreach ($st as $store_id) {
         <div class="toast text-bg-secondary align-items-center" id="notification" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
-
+                    
                 </div>
                 <button type="button" class="btn-close me-2 m-auto btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
