@@ -25,7 +25,7 @@ session()->set('current_url', $_SERVER['REQUEST_URI']);
 </head>
 
 <body>
-
+    <?= csrf()->input(); ?>
     <div class="conatiner-fluid mx-2">
         <div class="row gx-0">
             <div class="col-2">
@@ -773,9 +773,24 @@ session()->set('current_url', $_SERVER['REQUEST_URI']);
         </div>
     </div>
 
+
+    <!-- Toasts -->
+    <div class="toast-container position-fixed bottom-0 start-0 p-3">
+        <div class="toast text-bg-secondary align-items-center" id="notification" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    
+                </div>
+                <button type="button" class="btn-close me-2 m-auto btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <!-- end Toasts -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="<?= assets('js/file-upload.js'); ?>"></script>
+    <script src="<?= assets('js/services.js'); ?>"></script>
     <script>
         <?php if (session()->has('open_modal', true)) { ?>
             var myModal = new bootstrap.Modal(document.getElementById('<?= session()->get_flash_message('modal_id'); ?>'));

@@ -96,10 +96,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-flex mt-3">
-                                <div class="overflow-hidden me-auto">
+                            <div class="d-flex mt-3" title="<?= $file->title; ?>">
+                                <div class="overflow-hidden me-auto w-50">
                                     <h5 class="font-size-15 text-truncate mb-1"><a href="javascript: void(0);" class="text-body"><?= $file->title; ?></a></h5>
-                                    <p class="text-muted text-truncate mb-0"><?= $file->files; ?> Files</p>
+                                    <p class="text-muted text-truncate mb-0"><?= getSize($file->size); ?></p>
                                 </div>
                                 <div class="align-self-end ms-2">
                                     <p class="text-muted mb-0 font-size-13"><i class="mdi mdi-clock"></i> <?= timeAgo($file->last_updated); ?></p>

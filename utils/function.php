@@ -245,3 +245,18 @@ function get_file_icon($mime_type){
 
     return isset($file_icons[$mime_type]) ? $file_icons[$mime_type] : $unknown_icon;
 }
+
+function getSize(int $size){
+    
+    $kb = $size/(1024); //kb
+    $mb = $size/(1024*1024); //mb
+    $gb = $size/(1024*1024*1024); //gb
+
+    if($gb >= 1){
+        return round($gb,1).' GB';
+    }else if($mb >= 1){
+        return round($mb,1).' MB';
+    }else if($kb >= 1){
+        return round($kb,1).' KB';
+    }
+}
