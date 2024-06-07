@@ -114,9 +114,15 @@ function breadcrumbs()
         $fd = clean($_GET['fd']);
     }
 
-    $breadcrumbs = '';
+    $breadcrumbs = 'Welcome to drive';
 
-    if ($fd) {
+    if (isset($_GET['page']) && !empty($_GET['page'])) {
+
+        $page_name = file_exists('../pages/'.$_GET['page'].'.php') ? ucwords($_GET['page']) : '404';
+
+        return '<a href="' . BASE_URL . 'pages/home.php"> Home </a> > ' . $page_name;
+
+    } else if ($fd) {
 
         $check = ORM::for_table('folders')->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->where('uuid', $fd)->find_one();
         if (!$check) {
@@ -154,27 +160,27 @@ function breadcrumbs()
     return $breadcrumbs;
 }
 
-function getSizeAll($return_string = false){
+function getSizeAll($return_string = false)
+{
 
-    $all_size = ORM::for_table('folders')->where('user_id', session()->get('user_id'))->where('is_deleted',0)->sum('size');
-    $file_size = ORM::for_table('files')->where('user_id', session()->get('user_id'))->where('is_deleted',0)->sum('size');
+    $all_size = ORM::for_table('folders')->where('user_id', session()->get('user_id'))->where('is_deleted', 0)->sum('size');
+    $file_size = ORM::for_table('files')->where('user_id', session()->get('user_id'))->where('is_deleted', 0)->sum('size');
 
-    $all_size+=$file_size;
+    $all_size += $file_size;
 
-    $kb = $all_size/(1024); //kb
-    $mb = $all_size/(1024*1024); //mb
-    $gb = $all_size/(1024*1024*1024); //gb
+    $kb = $all_size / (1024); //kb
+    $mb = $all_size / (1024 * 1024); //mb
+    $gb = $all_size / (1024 * 1024 * 1024); //gb
 
-    if(!$return_string) return $gb;
+    if (!$return_string) return $gb;
 
-    if($gb >= 1){
-        return round($gb,1).' GB';
-    }else if($mb >= 1){
-        return round($mb,1).' MB';
-    }else if($kb >= 1){
-        return round($kb,1).' KB';
+    if ($gb >= 1) {
+        return round($gb, 1) . ' GB';
+    } else if ($mb >= 1) {
+        return round($mb, 1) . ' MB';
+    } else if ($kb >= 1) {
+        return round($kb, 1) . ' KB';
     }
-
 }
 
 function timeAgo(int $timestamp)
@@ -183,36 +189,30 @@ function timeAgo(int $timestamp)
     $time_difference = $current_time - $timestamp;
 
     $label = '';
-    if($time_difference >= (60 * 60 * 24 * 365)){
-        $label = round($time_difference/(60 * 60 * 24 * 365),1).' years ago';
-
-    }else if($time_difference >= (60 * 60 * 24 * 30)){
-        $label = floor($time_difference/(60 * 60 * 24 * 30)).' month ago';
-
-    }else if($time_difference >= (60 * 60 * 24 * 7)){
-        $label = floor($time_difference/(60 * 60 * 24 * 7)).' week ago';
-
-    }else if($time_difference >= (60 * 60 * 24)){
-        $label = floor($time_difference/(60 * 60 * 24)).' day ago';
-
-    }else if($time_difference >= (60 * 60)){
-        $label = floor($time_difference/(60 * 60)).' hour ago';
-
-    }else if($time_difference >= 60){
-        $label = floor($time_difference/60).' minute ago';
-
-    }else if($time_difference > 10){
-        $label = $time_difference.' seconds ago';
-
-    }else{
+    if ($time_difference >= (60 * 60 * 24 * 365)) {
+        $label = round($time_difference / (60 * 60 * 24 * 365), 1) . ' years ago';
+    } else if ($time_difference >= (60 * 60 * 24 * 30)) {
+        $label = floor($time_difference / (60 * 60 * 24 * 30)) . ' month ago';
+    } else if ($time_difference >= (60 * 60 * 24 * 7)) {
+        $label = floor($time_difference / (60 * 60 * 24 * 7)) . ' week ago';
+    } else if ($time_difference >= (60 * 60 * 24)) {
+        $label = floor($time_difference / (60 * 60 * 24)) . ' day ago';
+    } else if ($time_difference >= (60 * 60)) {
+        $label = floor($time_difference / (60 * 60)) . ' hour ago';
+    } else if ($time_difference >= 60) {
+        $label = floor($time_difference / 60) . ' minute ago';
+    } else if ($time_difference > 10) {
+        $label = $time_difference . ' seconds ago';
+    } else {
         $label = 'Just now';
     }
 
-    
+
     return $label;
 }
 
-function get_file_icon($mime_type){
+function get_file_icon($mime_type)
+{
 
     $file_icons = [
         'application/pdf' => 'bx bxs-file-pdf',
@@ -239,24 +239,51 @@ function get_file_icon($mime_type){
         'video/quicktime' => 'bx bxs-play',
         'application/ogg' => 'bx bxs-play',
     ];
-    
+
 
     $unknown_icon = 'bx bx-unknown';
 
     return isset($file_icons[$mime_type]) ? $file_icons[$mime_type] : $unknown_icon;
 }
 
-function getSize(int $size){
-    
-    $kb = $size/(1024); //kb
-    $mb = $size/(1024*1024); //mb
-    $gb = $size/(1024*1024*1024); //gb
+function getSize(int $size)
+{
 
-    if($gb >= 1){
-        return round($gb,1).' GB';
-    }else if($mb >= 1){
-        return round($mb,1).' MB';
-    }else if($kb >= 1){
-        return round($kb,1).' KB';
+    $kb = $size / (1024); //kb
+    $mb = $size / (1024 * 1024); //mb
+    $gb = $size / (1024 * 1024 * 1024); //gb
+
+    if ($gb >= 1) {
+        return round($gb, 1) . ' GB';
+    } else if ($mb >= 1) {
+        return round($mb, 1) . ' MB';
+    } else if ($kb >= 1) {
+        return round($kb, 1) . ' KB';
     }
+}
+
+function init_page()
+{
+
+    $_404 = '../pages/404.php';
+
+    if (isset($_GET['page']) && !empty($_GET['page'])) {
+        $page = $_GET['page'] . '.php';
+        if (file_exists('../pages/' . $page)) {
+            include '../pages/' . $page;
+            return;
+        } else {
+            include $_404;
+            return;
+        }
+    }
+
+    if (isset($_GET['fd']) && !empty($_GET['fd'])) {
+        require_once '../pages/folders.php';
+        return;
+    } 
+
+
+    require_once '../pages/home-content.php';
+
 }
