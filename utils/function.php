@@ -118,10 +118,9 @@ function breadcrumbs()
 
     if (isset($_GET['page']) && !empty($_GET['page'])) {
 
-        $page_name = file_exists('../pages/'.$_GET['page'].'.php') ? ucwords($_GET['page']) : '404';
+        $page_name = file_exists('../pages/' . $_GET['page'] . '.php') ? ucwords($_GET['page']) : '404';
 
         return '<a href="' . BASE_URL . 'pages/home.php"> Home </a> > ' . $page_name;
-
     } else if ($fd) {
 
         $check = ORM::for_table('folders')->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->where('uuid', $fd)->find_one();
@@ -183,6 +182,14 @@ function getSizeAll($return_string = false)
     }
 }
 
+function add_s(int $num, $label)
+{
+
+    if ($num > 1) return $label . 's';
+
+    return $label;
+}
+
 function timeAgo(int $timestamp)
 {
     $current_time = time();
@@ -190,17 +197,23 @@ function timeAgo(int $timestamp)
 
     $label = '';
     if ($time_difference >= (60 * 60 * 24 * 365)) {
-        $label = round($time_difference / (60 * 60 * 24 * 365), 1) . ' years ago';
+        $time = round($time_difference / (60 * 60 * 24 * 365), 1);
+        $label = $time . add_s($time, ' year') . ' ago';
     } else if ($time_difference >= (60 * 60 * 24 * 30)) {
-        $label = floor($time_difference / (60 * 60 * 24 * 30)) . ' month ago';
+        $time = floor($time_difference / (60 * 60 * 24 * 30));
+        $label =  $time . add_s($time, ' month') . ' ago';
     } else if ($time_difference >= (60 * 60 * 24 * 7)) {
-        $label = floor($time_difference / (60 * 60 * 24 * 7)) . ' week ago';
+        $time = floor($time_difference / (60 * 60 * 24 * 7));
+        $label = $time . add_s($time, ' week') . ' ago';
     } else if ($time_difference >= (60 * 60 * 24)) {
-        $label = floor($time_difference / (60 * 60 * 24)) . ' day ago';
+        $time = floor($time_difference / (60 * 60 * 24));
+        $label = $time . add_s($time, ' day') . ' ago';
     } else if ($time_difference >= (60 * 60)) {
-        $label = floor($time_difference / (60 * 60)) . ' hour ago';
+        $time = floor($time_difference / (60 * 60));
+        $label = $time .add_s($time, ' hour'). ' ago';
     } else if ($time_difference >= 60) {
-        $label = floor($time_difference / 60) . ' minute ago';
+        $time = floor($time_difference / 60);
+        $label = $time . add_s($time, ' minute').' ago';
     } else if ($time_difference > 10) {
         $label = $time_difference . ' seconds ago';
     } else {
@@ -281,9 +294,8 @@ function init_page()
     if (isset($_GET['fd']) && !empty($_GET['fd'])) {
         require_once '../pages/folders.php';
         return;
-    } 
+    }
 
 
     require_once '../pages/home-content.php';
-
 }

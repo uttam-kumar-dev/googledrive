@@ -1,301 +1,688 @@
-<?php include __DIR__ . '/../config/config.php';
+<?php
+include_once('includes/config.php');
 
-is_logged_in(true);
+$private_available = false;
+$table_available = false;
 
-session()->set('current_url', $_SERVER['REQUEST_URI']);
+$stores = [16, 21, 25, 23];
+
+if (isset($_POST['day_select'], $_POST['year_select'], $_POST['month_select']) && !empty($_POST['day_select']) && !empty($_POST['year_select']) && !empty($_POST['month_select'])) {
+
+
+    $_POST['month_select'] = $_POST['month_select'] < 10 ? '0' . $_POST['month_select'] : $_POST['month_select'];
+
+    $date = $_POST['year_select'] . '-' . $_POST['month_select'] . '-' . $_POST['day_select'];
+
+
+
+    if ($date < date('Y-m-d')) {
+        $_SESSION['msg'] = 'Please select date greater than from current date';
+        header('location:' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+
+    $slots_all = ORM::for_table('membership_slots')->where('status', 1)->find_many();
+
+    $slot_arr = [];
+
+    foreach ($slots_all as $s) {
+        $slot_arr[] = $s->id;
+    }
+
+
+
+    $booked_slot = [];
+    $st = array(16, 21, 23);
+    foreach ($st as $store_id) {
+
+        $private = ORM::for_table('shared_reservation_2')->where('status', 1)->where('store_id', $store_id)->where('reservation_date', $date)->find_many();
+
+        foreach ($private as $p) {
+            $booked_slot[] = $p->id;
+        }
+
+        $diff = array_diff($slot_arr, $booked_slot);
+
+        if (!empty($diff)) {
+            $private_available = true;
+            break 1;
+        }
+    }
+
+
+    $membership_tables = ORM::for_table('membership_tables')->where('store_id', 25)->where('status', 1)->find_many();
+
+    foreach ($membership_tables as $m) {
+
+        foreach ($slots_all as $s) {
+
+            $private = ORM::for_table('shared_reservation_2')->where('store_id', 25)->where('slot', $s->id)->where('status', 1)->where('reservation_date', $date)->where_raw('(FIND_IN_SET(' . $m->id . ', table_id))')->find_many();
+
+            if ($private->count() == 0) {
+                $table_available = true;
+                break 2;
+            }
+        }
+    }
+
+    $private_min_price = ORM::for_table('membership_packages')->where('status', 1)->where('type', 'PRIVATE')->min('price');
+    $private_max_price = ORM::for_table('membership_packages')->where('status', 1)->where('type', 'PRIVATE')->max('price');
+
+    $table_min_price = ORM::for_table('membership_packages')->where('status', 1)->where('type', 'SUBSCRIPTION')->min('price');
+    $table_max_price = ORM::for_table('membership_packages')->where('status', 1)->where('type', 'SUBSCRIPTION')->max('price');
+}
 
 
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://24kmember.com/latest/images/logo/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://24kmember.com/latest/images/logo/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://24kmember.com/latest/images/logo/favicon-16x16.png">
+    <link rel="manifest" href="https://24kmember.com/latest/images/logo/site.webmanifest">
+    <!--  CSS Files -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://24kmember.com/latest/assets_home/css/owl.carousel.min.css">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swiper/swiper-bundle.css">
+    <!-- Template Main CSS File -->
+    <link href="https://24kmember.com/latest/assets_home/fonts/font.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://24kmember.com/latest/styles/style.css">
+    <link href="https://24kmember.com/latest/assets_home/css/style.css" rel="stylesheet" />
+    <title><?php echo BRAND_NAME; ?></title>
+    <link href="https://24kmember.com/latest/dashboard_asset/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://24kmember.com/latest/styles/style-ajax-dashboard.css">
+    <link href="https://24kmember.com/latest/admin/styles/booking_style.css" rel="stylesheet" />
+    <style>
+        .custom-select:focus {
+            -webkit-appearance: auto !important;
+        }
 
-    <link rel="stylesheet" type="text/css" href="<?= assets('css/style.css'); ?>">
+        .nav-fill .nav-item {
+            color: #8b8787;
+        }
 
-    <script>
-        const BASE_URL = '<?= BASE_URL ?>';
-        const CURRENT_FOLDER = '<?= isset($_GET['fd']) ? $_GET['fd'] : '' ?>';
-    </script>
+        .new_grad {
+            padding: 2px;
+            border: none;
+            border-radius: 10px;
+            color: #F2C94C;
+            font-size: 16px;
+            font-weight: 500;
+            background-image: linear-gradient(91.38deg, #FF9700 1.03%, rgba(180, 62, 235, 0.89) 48.76%, #F8CD54 100%);
+        }
+    </style>
 </head>
 
-<body>
-    <?= csrf()->input(); ?>
-    <div class="conatiner-fluid mx-2">
-        <div class="row gx-0">
-            <div class="col-2">
-                <div class="card border w-inherit position-fixed">
-                    <div class="card-body">
+<body class="pb-0" style="background:#000;">
+    <div id="page">
+        <div class="pt-4">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="#"><img src="https://24kmember.com/latest/images/logo/logo.png" data-bs-toggle="modal" data-bs-target="#galleria25" class="logos" alt="logo"></a>
+                            <a href="#"><img src="https://24kmember.com/latest/images/stores/logo/room24new.png" data-bs-toggle="modal" data-bs-target="#galleria23" class="logos" alt="logo"></a>
+                            <a href="#"><img src="https://24kmember.com/latest/images/stores/logo/24kMirror.png" data-bs-toggle="modal" data-bs-target="#galleria16" class="logos" alt="logo"></a>
+                            <a href="#"><img src="https://24kmember.com/latest/images/stores/logo/dreams.png" data-bs-toggle="modal" data-bs-target="#galleria21" class="logos" alt="logo"></a>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <div class="package-bdr w-50">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#galleria25" class="btn package-details-btn text-center font-9">View pics</a>
+                            </div>
+
+                            <div class="package-bdr w-50">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#galleria23" class="btn package-details-btn text-center font-9">View pics</a>
+                            </div>
+
+                            <div class="package-bdr w-50">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#galleria16" class="btn package-details-btn text-center font-9">View pics</a>
+                            </div>
+
+                            <div class="package-bdr w-50">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#galleria21" class="btn package-details-btn text-center font-9">View pics</a>
+                            </div>
+
+                        </div>
 
 
-                        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                            <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2 active" aria-current="page" href="<?= BASE_URL ?>pages/home.php"><i class="mdi mdi-home me-1"></i> Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2" href="#"><i class="mdi mdi-book-lock me-1"></i> My Drive</a>
-                            </li>
+                        <div class="d-flex justify-content-between align-items-center  mt-5">
+                            <p class="text-center font-14 font-600 mb-0 pt-2"><span class="grdient_color">Location:</span> Downtown Brooklyn</p>
 
-                            <li>
-                                <hr class="divider">
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2" href="#"> <i class="mdi mdi-account-multiple me-1"></i> Shared with me</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2" href="#"> <i class="mdi mdi-clock-time-seven me-1 "></i> Recent</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2" href="<?= BASE_URL?>pages/home.php?page=starred"> <i class="mdi mdi-star-outline me-1"></i>Starred</a>
-                            </li>
-
-                            <li>
-                                <hr class="divider">
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2" href="#"> <i class="mdi mdi mdi-alert-circle-outline me-1"></i> Spam</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2" href="#"> <i class="mdi mdi mdi-trash-can me-1"></i>Trash</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link rounded-pill px-2" href="#"> <i class="mdi mdi mdi-cloud-lock-outline"></i> Storage</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <div class="progress animated-progess custom-progress mt-3 mb-1" style="height: 5px;">
-                                    <div class="progress-bar bg-gradient bg-primary" role="progressbar" style="width: <?= getSizeAll(); ?>%" aria-valuenow="<?= getSizeAll(); ?>" aria-valuemin="0" aria-valuemax="100">
-                                    </div>
+                            <div class="d-flex gap-2">
+                                <div class="package-bdr w-50">
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#detailsModal1" class="btn package-details-btn text-center font-14">Menu</a>
                                 </div>
-
-                                <p class="text-muted"><?= getSizeAll(true); ?> of 15 GB used</p>
-                            </li>
-
-                        </ul>
+                                <div class="package-bdr w-50">
+                                    <a href="<?= APP_URL ?>signin.php" type="button" class="btn package-details-btn text-center font-14">Login</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-10">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xl-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    
-                                <div class="row mb-3">
-                                        <div class="col-lg-4 col-sm-6">
-                                            <div class="search-box mb-2 me-2">
-                                                <div class="position-relative">
-                                                    <input type="text" class="form-control bg-light border-light rounded" placeholder="Search...">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" class="eva eva-search-outline search-icon">
-                                                        <g data-name="Layer 2">
-                                                            <g data-name="search">
-                                                                <rect width="24" height="24" opacity="0"></rect>
-                                                                <path d="M20.71 19.29l-3.4-3.39A7.92 7.92 0 0 0 19 11a8 8 0 1 0-8 8 7.92 7.92 0 0 0 4.9-1.69l3.39 3.4a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42zM5 11a6 6 0 1 1 6 6 6 6 0 0 1-6-6z"></path>
-                                                            </g>
-                                                        </g>
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-8 col-sm-6">
-                                            <div class="mt-4 mt-sm-0 d-flex align-items-center justify-content-sm-end">
 
-                                                <div class="mb-2 me-2">
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            <i class="mdi mdi-plus me-1"></i> Create New
-                                                        </button>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#create_folder"><i class="mdi mdi-folder-outline me-1"></i> Folder</a>
-                                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#upload_files"><i class="mdi mdi-file-outline me-1"></i> File</a>
-                                                        </div>
+                <div class="row mb-0">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                        <h3 class="text-center text-white font-22">Check Availability</h3>
+                    </div>
+                </div>
 
 
-                                                    </div>
-                                                </div>
 
-                                                <div class="dropdown mb-0">
-                                                    <a class="btn btn-link text-muted dropdown-toggle p-1 mt-n2" role="button" data-bs-toggle="dropdown" aria-haspopup="true">
-                                                        <i class="mdi mdi-dots-vertical font-size-20"></i>
+                <?php echo handle_msg('msg') ?>
+
+                <div class="row">
+
+                    <form action="" method="post" id="booking_form_main" onsubmit="document.getElementById('up_submit').style.pointerEvents='none';">
+                        <input type="hidden" name="year_select" id="year_select">
+                        <input type="hidden" name="month_select" id="month_select">
+                        <input type="hidden" name="day_select" id="day_select">
+                        <input type="hidden" name="slot" id="slot_id">
+
+
+
+                        <div class="row mb-0">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12 mt-3">
+                                <label class="grdient_color font-600">Select Month</label>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <a href="#" class="btn-left btn-link p-2 toggle text-dark"><i class="fa fa-angle-left"></i></a>
+                                    </div>
+                                    <div class="flex-grow-1 w-100 o-hidden">
+                                        <ul class="nav nav-fill text-uppercase small position-relative flex-nowrap" id="mnthDiv" style="overflow:auto;">
+
+                                            <?php
+                                            $currentDate = new DateTime();
+                                            $endDate = (new DateTime())->modify('+6 months');
+                                            $filteredDates = array();
+                                            $currentDate->modify('first day of this month');
+                                            while ($currentDate <= $endDate) {
+
+                                                if (!($currentDate->format('Y-m-d') >= '2024-06-15')) {
+                                                    $currentDate->modify('+1 day');
+                                                    continue;
+                                                }
+
+                                                $daynum =  $currentDate->format('d');
+                                                $day_show = $currentDate->format('D');
+                                                $month_show = $currentDate->format('M');
+                                                $year = $currentDate->format('Y');
+                                                $month_number = $currentDate->format('m');
+                                            ?>
+
+                                                <li class="nav-item" id="<?php echo 'nav_link_date1' . $month_number; ?>" onclick="selectMonth('nav_link_date1<?= $month_number ?>',<?= $month_number ?>,<?= $year ?>);">
+                                                    <a href="#" onclick="return false;" class="nav-link">
+                                                        <span style="color: #8b8787;">
+                                                            <?php echo $month_show; ?><br>
                                                     </a>
-
-                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                        <a class="dropdown-item" href="#">Share Files</a>
-                                                        <a class="dropdown-item" href="#">Share with me</a>
-                                                        <a class="dropdown-item" href="#">Other Actions</a>
-                                                    </div>
-                                                </div>
+                                                </li>
+                                            <?php
 
 
-                                            </div>
+                                                $currentDate->modify('+1 Month');
+                                            }
+                                            ?>
+
+                                        </ul>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <a href="#" class="btn-right btn-link toggle p-2 text-dark"><i class="fa fa-angle-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12 mt-3">
+                                <label class="grdient_color font-600">Select Day</label>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <a href="#" class="btn-left btn-link p-2 toggle text-dark"><i class="fa fa-angle-left"></i></a>
+                                    </div>
+                                    <div class="flex-grow-1 w-100 o-hidden">
+                                        <ul class="nav nav-fill text-uppercase small position-relative flex-nowrap" id="dayDiv" style="overflow:auto;">
+
+
+                                        </ul>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <a href="#" class="btn-right btn-link toggle p-2 text-dark"><i class="fa fa-angle-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+                        <div class="col-lg-12 col-sm-12 my-3 text-center"> <input type="submit" name="submit" id="up_submit" value="Check A Date" class="btn btn-s btn_grad font-600 rounded-s scale-box" style="font-size: 18px !important; width: 95%; color: #fff !important;"></div>
+
+                    </form>
+                </div>
+
+
+
+                <div class="row mb-2">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                        <h3 class="text-center text-white font-22 mb-3"><?= ($table_available || $private_available) ? 'There is Availablity' : ''; ?></h3>
+                    </div>
+
+
+                    <?php if ($table_available) { ?>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-6">
+
+                            <div class="grad_box mb-3">
+                                <div class="p10">
+                                    <h5 class="package-title mb-0 letter-space-04 font-18">Table Booking</h5>
+                                    <h5 class="mb-1 mt-4 package-price letter-space-04 pb-2 pt-1 font-18">From:<br />$<?= $table_min_price . ' - $' . $table_max_price ?></h5>
+                                    <div class="package-bdr w-100">
+                                        <a href="https://thagalleria.com/signin.php?source=24kmember&date=<?= $date ?>" class="btn package-details-btn text-center font-14">Confirm Package</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php }
+                    if ($private_available) { ?>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-6">
+
+                            <div class="grad_box mb-3">
+                                <div class="p10">
+                                    <h5 class="package-title mb-0 letter-space-04 font-18">100% Private Dining</h5>
+                                    <h5 class="mb-1 package-price letter-space-04 py-2 font-18">From:<br />$<?= $private_min_price . ' - $' . $private_max_price ?></h5>
+                                    <div class="package-bdr w-100">
+                                        <a href="https://24kmember.com/latest/signin.php?source=24kmember&date=<?= $date ?>" class="btn package-details-btn text-center font-14">Confirm Package</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    <?php } ?>
+                </div>
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- package menu -->
+    <?php
+
+
+
+    require_once('includes/package_menu.php'); ?>
+
+
+
+    <!-- Details Modal Start -->
+    <div class="modal" id="detailsModal1" style="padding-top: 0px; padding-bottom: 0px; z-index: 9999;" aria-modal="true" role="dialog">
+        <div class="modal-dialog mt-5">
+
+            <!-- Modal body -->
+            <div class="modal-body" style="padding:0;">
+                <div class="rounded-m new_grad" style="pointer-events:all;">
+                    <div class="rounded-m p-2" style="background-color: #181717;">
+                        <div class="menu-title">
+                            <a href="#" class="close-menumb-3" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i></a>
+                            <h3 class="grdient_color1 mt-2 ">Menu </h3>
+                        </div>
+                        <div class="">
+
+                            <p class=".f_16 fw_600 mb-2" style="color:#ffffff;font-size:18px;"></p>
+
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <?php
+                                $counter = 1;
+                                $menu_item = ORM::for_table('sys_menu')->where('store_id', 25)->where('category_id', 39)->where('status', 1)->order_by_asc('sort_order')->find_many();
+
+                                foreach ($menu_item as $v) {
+                                ?>
+
+                                    <div>
+
+                                        <a href="#">
+                                            <h1 class="text-white py-3 font-26"><?php echo $v->menu_name ?></h1>
+                                        </a>
+
+                                        <?php
+                                        $item_count = 0;
+                                        $sub_item = ORM::for_table('sys_menu_options')->where('menu_id', $v->id)->find_many();
+                                        if (count($sub_item) > 0) {
+                                            foreach ($sub_item as $v1) {
+                                        ?>
+                                                <a href="#">
+                                                    <h3 class="font-20 ms-4 mb-2" style="color:#F6BB42;"><?php echo $v1->title ?></h3>
+                                                </a>
+                                    <?php $item_count++;
+                                                if (count($sub_item) == $item_count) {
+                                                    echo '</div>';
+                                                }
+                                            }
+                                        }
+                                        if (count($sub_item) == 0) {
+                                            echo '</div>';
+                                        }
+                                        $counter++;
+                                    } ?>
+
+                                    </div>
+
+
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Details Modal End   -->
+
+
+    <!-- galleria25 Modal Start -->
+
+    <div class="modal" id="galleria25" tabindex="-1" style="padding-top: 0px; padding-bottom: 0px; z-index: 9999;" aria-modal="true">
+        <div class="modal-dialog mt-5" style="background-color: #181717;">
+            <div class="modal-content rounded-m btn_grad">
+                <div class="rounded-m p-2" style="background-color: #181717;">
+                    <div class="modal-header">
+
+                        <h3 class="grdient_color1 ">The Galleria </h3>
+                        <button type="button" class="close-menumb-3 " data-bs-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+
+                        <!--<h5 class="modal-title text-white py-3 font-26">The Galleria</h5>-->
+                        <!--   <button type="button" class="btn-close close-menumb-3 mt-2 bg-white" data-bs-dismiss="modal" aria-label="Close"></button>-->
+                    </div>
+                    <div class="modal-body" style="padding:0;">
+
+                        <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                <?php
+
+                                $images = ORM::for_table('sys_gallery')->where('store_id', 25)->where('type', 0)->find_many();
+
+                                foreach ($images as $k => $image) { ?>
+
+                                    <div class="carousel-item <?= $k == 0 ? 'active' : ''; ?>">
+                                        <img class="d-block w-100" src="https://24kmember.com/images/stores/gallery/<?= $image->image ?>" alt="Second slide">
+                                    </div>
+
+                                <?php } ?>
+
+                            </div>
+
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- galleria25 Modal End   -->
+
+    <!-- galleria23 Modal Start -->
+
+    <div class="modal" id="galleria23" tabindex="-1" style="padding-top: 0px; padding-bottom: 0px; z-index: 9999;" aria-modal="true">
+        <div class="modal-dialog mt-5">
+            <div class="modal-content rounded-m btn_grad">
+                <div class="rounded-m p-2" style="background-color: #181717;">
+                    <div class="modal-header">
+
+                        <h3 class="grdient_color1 ">Room 24k</h3>
+                        <button type="button" class="close-menumb-3 " data-bs-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <div id="room24k" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+
+                                <?php
+
+                                $images = ORM::for_table('sys_gallery')->where('store_id', 23)->where('type', 0)->find_many();
+
+                                foreach ($images as $k => $image) { ?>
+
+                                    <div class="carousel-item <?= $k == 0 ? 'active' : ''; ?>">
+                                        <img class="d-block w-100" src="https://24kmember.com/images/stores/gallery/<?= $image->image ?>" alt="Second slide">
+                                    </div>
+
+                                <?php } ?>
+
+                                <button class="carousel-control-prev" type="button" data-bs-target="#room24k" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#room24k" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- galleria23 Modal End -->
+
+        <!-- galleria16 Modal Start -->
+
+        <div class="modal" id="galleria16" tabindex="-1" style="padding-top: 0px; padding-bottom: 0px; z-index: 9999;" aria-modal="true">
+            <div class="modal-dialog mt-5">
+                <div class="modal-content rounded-m btn_grad">
+
+                    <div class="rounded-m p-2" style="background-color: #181717;">
+                        <div class="modal-header">
+
+                            <h3 class="grdient_color1 ">24k MIRROR </h3>
+                            <button type="button" class="close-menumb-3" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+
+                        </div>
+                        <div class="modal-body">
+
+                            <div id="mirror" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+
+                                    <?php
+                                    $images = ORM::for_table('sys_gallery')->where('store_id', 16)->where('type', 0)->find_many();
+
+                                    foreach ($images as $k => $image) { ?>
+
+                                        <div class="carousel-item <?= $k == 0 ? 'active' : ''; ?>">
+                                            <img class="d-block w-100" src="https://24kmember.com/images/stores/gallery/<?= $image->image ?>" alt="Second slide">
                                         </div>
-                                    </div>
 
-                                    <h5 class="font-size-16 me-3 mb-3"><?= breadcrumbs(); ?></h5>
-                                    
 
-                                    <?php init_page(); ?>
-                                    
-                                    <!-- end row -->
-                                   
+                                    <?php } ?>
+
 
                                 </div>
+
+                                <button class="carousel-control-prev" type="button" data-bs-target="#mirror" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#mirror" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+
                             </div>
 
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-        </div>
-    </div>
-
-
-    <!-- MODALS -->
-
-    <!-- MODAl for add folder -->
-    <div class="modal" tabindex="-1" id="create_folder">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create Folder</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="POST" action="<?= BASE_URL ?>services/manager.php">
-                    <?= csrf()->input(); ?>
-
-                    <input type="hidden" name="__P_F__" value="<?= isset($_GET['fd']) ? $_GET['fd'] : '' ?>">
-                    <div class="modal-body">
-                        <?php if ($msg = session()->get_flash_message('error')) { ?>
-                            <div class="alert alert-info"><?= $msg ?></div>
-                        <?php } ?>
-                        <div class="form-floating mb-3">
-                            <input type="text" name="folder_name" class="form-control" id="folder" placeholder="Folder name">
-                            <label for="folder">Folder name</label>
                         </div>
 
-                        <small class="text-danger py-1">* Each folder you create takes up 4KB of space.</small>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" name="create_folder" class="btn btn-primary">Create Folder</button>
-                    </div>
-                </form>
+
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Modal end here -->
 
-    <!-- Modal for upload files -->
-    <div class="modal" tabindex="-1" id="upload_files">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Upload Files</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" id="file_upload_form" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <div class="card border-dashed shadow-none">
-                            <div class="card-body py-5">
-                                <div class="text-center">
 
-                                    <label for="file_input" class="d-block" role="button">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 24 24" style="fill: #dbdbdb;">
-                                            <path d="M13 19v-4h3l-4-5-4 5h3v4z"></path>
-                                            <path d="M7 19h2v-2H7c-1.654 0-3-1.346-3-3 0-1.404 1.199-2.756 2.673-3.015l.581-.102.192-.558C8.149 8.274 9.895 7 12 7c2.757 0 5 2.243 5 5v1h1c1.103 0 2 .897 2 2s-.897 2-2 2h-3v2h3c2.206 0 4-1.794 4-4a4.01 4.01 0 0 0-3.056-3.888C18.507 7.67 15.56 5 12 5 9.244 5 6.85 6.611 5.757 9.15 3.609 9.792 2 11.82 2 14c0 2.757 2.243 5 5 5z"></path>
-                                        </svg>
-                                        <input type="file" class="d-none" name="files[]" multiple id="file_input">
+        <!-- galleria16 Modal End -->
 
-                                        <span class="fs-3 text-gray d-block">Choose Files</span>
-                                    </label>
 
-                                    <p class="small mb-0 mt-2"><b>Note:</b> Make sure the file must be less than 20MB, and you can select up to 10 files at once </p>
+        <!-- galleria21 Modal Start -->
 
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="file_progress_bar" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                                    </div>
+        <div class="modal" id="galleria21" tabindex="-1" style="padding-top: 0px; padding-bottom: 0px; z-index: 9999;" aria-modal="true">
+            <div class="modal-dialog mt-5">
+                <div class="modal-content rounded-m btn_grad">
+
+                    <div class="rounded-m p-2" style="background-color: #181717;">
+
+                        <div class="modal-header">
+
+                            <h3 class="grdient_color1">24K DREAMS</h3>
+                            <button type="button" class="close-menumb-3 " data-bs-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+
+
+                        </div>
+                        <div class="modal-body">
+                            <div id="dream" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    <?php
+                                    $images = ORM::for_table('sys_gallery')->where('store_id', 21)->where('type', 0)->find_many();
+
+                                    foreach ($images as $k => $image) { ?>
+
+                                        <div class="carousel-item <?= $k == 0 ? 'active' : ''; ?>">
+                                            <img class="d-block w-100" src="https://24kmember.com/images/stores/gallery/<?= $image->image ?>" alt="Second slide">
+                                        </div>
+
+                                    <?php } ?>
+
                                 </div>
+
+                                <button class="carousel-control-prev" type="button" data-bs-target="#dream" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#dream" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="reset" class="btn btn-secondary">Reset</button>
-                        <button type="submit" id="upload_file_btn" data-bs-dismiss="modal" class="btn btn-primary">Upload</button>
-                    </div>
-                </form>
+
+
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Modal end here -->
-
-    <!-- END MODALS -->
-
-    <div class="position-fixed end-0 bottom-0 w-25 mh-100 d-none" id="file_upload_sidebar">
-        <div class="card border shadow rounded-1">
-            <div class="card-header" id="file_upload_header" data-bs-toggle="collapse" data-bs-target="#file_accordian" aria-expanded="false" aria-controls="file_accordian">
-                <div class="header-status">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                    </div> Uploading Files..
-                </div>
-
-                <div class="completed d-none justify-content-between">
-                    <span class="d-block">Completed</span>
-                    <span class="d-block" role="button" onclick="closeFileProgressBar()">X</span>
-                </div>
-            </div>
-
-            <div class="accordion" id="accordian_files_upload">
-                <div class="accordion-item rounded-0 border-top-0">
-                    <div id="file_accordian" class="accordion-collapse collapse" aria-labelledby="file_accordian" data-bs-parent="#accordian_files_upload">
-                        <div class="p-3" style="overflow-y:scroll;max-height:100vh" id="file_progress_bar_container">
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
 
 
-    <!-- Toasts -->
-    <div class="toast-container position-fixed bottom-0 start-0 p-3">
-        <div class="toast text-bg-secondary align-items-center" id="notification" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    
-                </div>
-                <button type="button" class="btn-close me-2 m-auto btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-    <!-- end Toasts -->
+        <!-- galleria21 Modal End -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="<?= assets('js/file-upload.js'); ?>"></script>
-    <script src="<?= assets('js/services.js'); ?>"></script>
-    <script>
-        <?php if (session()->has('open_modal', true)) { ?>
-            var myModal = new bootstrap.Modal(document.getElementById('<?= session()->get_flash_message('modal_id'); ?>'));
-            myModal.show();
-        <?php } ?>
-    </script>
+
+
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+        <script src="https://24kmember.com/admin/scripts/custom.js"></script>
+
+        <script>
+            function selectMonth(valchkk, val, yearval) {
+
+
+                $("#mnthDiv li").removeClass("active-date");
+
+                $('#' + valchkk).addClass('active-date');
+
+                document.getElementById("year_select").value = yearval;
+                document.getElementById("month_select").value = val;
+
+                document.getElementById("day_select").value = '';
+                document.getElementById("slot_id").value = '';
+
+                $.ajax({
+                    url: "https://24kmember.com/latest/ajax-get-month-start.php",
+                    type: "POST",
+                    data: {
+                        month: val,
+                        year: yearval,
+                    },
+                    cache: false,
+                    success: function(result) {
+                        $("#dayDiv").html(result);
+                    }
+                });
+
+            }
+
+            function selectDay(valchkk, month, year) {
+
+                document.getElementById("day_select").value = valchkk;
+
+                document.getElementById("slot_id").value = '';
+
+                $("#dayDiv li").removeClass("active-date");
+
+                $('#' + valchkk).addClass('active-date');
+
+                $.ajax({
+                    url: 'membership_process.php',
+                    type: "POST",
+                    data: {
+                        action: 'get_slots',
+                    },
+                    cache: false,
+                    success: function(result) {
+
+                        $("#slotDiv").html(result);
+
+                    }
+                });
+
+            }
+
+            function selectSlot(valchkk, slot_id) {
+
+                document.getElementById("slot_id").value = slot_id;
+
+                $("#slotDiv li").removeClass("active-date");
+                $('#' + valchkk).remove("active-date");
+
+                $('#' + valchkk).addClass('active-date');
+
+            }
+        </script>
 </body>
 
 </html>
