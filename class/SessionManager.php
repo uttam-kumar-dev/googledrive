@@ -26,7 +26,7 @@ class SessionManager
         return $this;
     }
 
-    public function get($key): null|string
+    public function get($key)
     {
 
         if (isset($_SESSION[$key])) {
@@ -61,7 +61,7 @@ class SessionManager
     }
 
 
-    public function get_flash_message($key): null|string
+    public function get_flash_message($key)
     {
 
         if (isset($_SESSION[$this->flash_identifier . $key])) {

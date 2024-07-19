@@ -4,28 +4,6 @@ require_once '../config/config.php';
 
 is_logged_in(false, true);
 
-function get_folder($fid)
-{
-    return ORM::for_table('folders')->where(array(
-
-        'user_id' => session()->get('user_id'),
-        'is_deleted' => 0,
-        'uuid' => $fid,
-
-    ))->find_one();
-}
-
-function get_file($fid)
-{
-    return ORM::for_table('files')->where(array(
-
-        'user_id' => session()->get('user_id'),
-        'is_deleted' => 0,
-        'uuid' => $fid,
-
-    ))->find_one();
-}
-
 function successResponse($is_starred)
 {
     $msg = $is_starred == 0  ? 'Starred Unmarked' : 'Starred Marked';

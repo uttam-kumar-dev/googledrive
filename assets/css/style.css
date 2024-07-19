@@ -198,3 +198,10 @@ a {
 ::-webkit-scrollbar-thumb:hover {
     background: #555; /* Color of the handle on hover */
 }
+
+/* Custom icons */
+.bxs-file-excel{
+    background-image: url('../img/excel-icon.svg');
+    width: 30px;
+    height: 30px;
+}

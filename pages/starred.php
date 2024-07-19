@@ -6,7 +6,6 @@
 
     $all_folders = ORM::for_table('folders')->where('is_starred', 1)->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->order_by_asc('id')->find_many();
 
-
     foreach ($all_folders as $k => $f) {
     ?>
 

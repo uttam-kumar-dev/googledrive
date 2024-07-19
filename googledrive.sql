@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 18, 2024 at 08:01 AM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- Generation Time: Jul 19, 2024 at 03:50 PM
+-- Server version: 10.4.25-MariaDB
+-- PHP Version: 7.4.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -41,16 +41,30 @@ CREATE TABLE `files` (
   `is_deleted` tinyint(4) NOT NULL DEFAULT 0,
   `date_added` int(11) NOT NULL,
   `last_updated` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `files`
 --
 
 INSERT INTO `files` (`id`, `uuid`, `title`, `file_type`, `file_extension`, `user_id`, `folder_id`, `size`, `is_private`, `is_starred`, `is_deleted`, `date_added`, `last_updated`) VALUES
-(1, 'a0c2e61b-de27-462d-9f2c-8f6348cfc896', 'practical notice (1).doc', 'application/msword', 'doc', 5, 0, 55808, 0, 0, 0, 1717679606, 1717679606),
-(2, '09ec4f30-0dd0-4713-9c9b-7dbd743f5c44', 'Healthcare Professional Registry (1) (1).docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 5, 11, 1232198, 0, 0, 0, 1717679916, 1717679916),
-(3, 'f98fdae5-b447-459d-8c67-bdd5782a5df1', 'Programming-PHP-PDFDrive-.pdf', 'application/pdf', 'pdf', 5, 11, 5596115, 0, 0, 0, 1717739088, 1717739088);
+(14, 'd4ed4729-d1e4-40c7-9bdb-a4bab6a90fb2', 'payments_error_reasons.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'xlsx', 5, 11, 80041, 0, 0, 0, 1721391025, 1721391025),
+(15, '8aa2cc54-472c-44f8-a97f-3a6f507c0df5', 'payments_error_reasons.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'xlsx', 5, 13, 80041, 0, 0, 0, 1721391321, 1721391321);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `file_sharing_access`
+--
+
+CREATE TABLE `file_sharing_access` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `share_with` int(11) NOT NULL DEFAULT 0 COMMENT '0 means, the file can view by anyone',
+  `file_id` int(11) NOT NULL,
+  `is_seen` tinyint(4) NOT NULL DEFAULT 0,
+  `date_added` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -72,15 +86,15 @@ CREATE TABLE `folders` (
   `is_starred` tinyint(4) NOT NULL DEFAULT 0,
   `date_added` int(11) NOT NULL,
   `last_updated` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `folders`
 --
 
 INSERT INTO `folders` (`id`, `uuid`, `parent_id`, `title`, `path`, `user_id`, `files`, `size`, `is_private`, `is_deleted`, `is_starred`, `date_added`, `last_updated`) VALUES
-(11, 'b3d9ae39-80ec-4bc5-96af-32b3336c76fb', 0, 'Depth 1', '/11', 5, 0, 4096, 0, 0, 0, 1717588684, 1717588684),
-(13, '2cb5fa4e-72ff-40bd-8bf2-6976c5a8c07b', 11, 'Depth 2', '/11/13', 5, 0, 4096, 0, 0, 0, 1717588737, 1717588737),
+(11, 'b3d9ae39-80ec-4bc5-96af-32b3336c76fb', 0, 'Depth 1', '/11', 5, 2, 4096, 0, 0, 0, 1717588684, 1717588684),
+(13, '2cb5fa4e-72ff-40bd-8bf2-6976c5a8c07b', 11, 'Depth 2', '/11/13', 5, 1, 4096, 0, 0, 0, 1717588737, 1717588737),
 (14, '509a7039-c21b-49af-88c7-009b56f7d480', 13, 'Depth 3', '/11/13/14', 5, 0, 4096, 0, 0, 0, 1717588749, 1717588749),
 (15, '2f1919e8-8fce-4ac1-9b9f-5bb78a4b91b2', 11, 'Direct child', '/11/15', 5, 0, 4096, 0, 0, 0, 1717588779, 1717588779),
 (17, '26dbf28a-d27f-4de9-9e39-982815a468b1', 13, 'testing', '/11/13/17', 5, 0, 4096, 0, 0, 0, 1717592436, 1717592436),
@@ -101,7 +115,7 @@ CREATE TABLE `users` (
   `is_email_verified` tinyint(4) NOT NULL DEFAULT 0,
   `storage_allocate` bigint(20) DEFAULT 1073741824 COMMENT '1GB, size in bytes',
   `status` tinyint(4) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `users`
@@ -121,6 +135,12 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `is_email_verified`, `st
 ALTER TABLE `files`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uuid` (`uuid`);
+
+--
+-- Indexes for table `file_sharing_access`
+--
+ALTER TABLE `file_sharing_access`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `folders`
@@ -144,7 +164,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `files`
 --
 ALTER TABLE `files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `file_sharing_access`
+--
+ALTER TABLE `file_sharing_access`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `folders`

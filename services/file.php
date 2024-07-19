@@ -25,11 +25,7 @@ if (isset($_FILES['file']) && $_FILES['file']['size'] > 0) {
         mkdir('../file_system/'.$dir);
     }
 
-    $file_path = $dir . '/' . $file['name'];
 
-    if (file_exists('../file_system/' . $file_path)) {
-        exit(json_encode(['file_name' => $file['name'], 'status' => 'error', 'msg' => 'File already exists',  'progress_bar' => $_POST['file_id']]));
-    }
 
     $folder = $_POST['path'];
     $folder_id = 0;
@@ -44,6 +40,14 @@ if (isset($_FILES['file']) && $_FILES['file']['size'] > 0) {
         }
 
         $folder_id = $check_if_folder_exists->id;
+    }
+
+    $new_temp_file_name = 'FOLDER_ID_'.$folder_id.'_'.$file['name'];
+
+    $file_path = $dir . '/' . $new_temp_file_name;
+
+    if (file_exists('../file_system/' . $file_path)) {
+        exit(json_encode(['file_name' => $file['name'], 'status' => 'error', 'msg' => 'File already exists',  'progress_bar' => $_POST['file_id']]));
     }
 
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -72,6 +76,10 @@ if (isset($_FILES['file']) && $_FILES['file']['size'] > 0) {
         try {
 
             $insert->save();
+
+            if(isset($check_if_folder_exists)){
+                increment_file_count($check_if_folder_exists->uuid);
+            }
 
             exit(json_encode(['file_name' => $file['name'], 'status' => 'success', 'msg' => 'File uploaded successfully',  'progress_bar' => $_POST['file_id']]));
         } catch (Exception $e) {

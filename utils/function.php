@@ -118,7 +118,7 @@ function breadcrumbs()
 
     if (isset($_GET['page']) && !empty($_GET['page'])) {
 
-        $page_name = file_exists('../pages/' . $_GET['page'] . '.php') ? ucwords($_GET['page']) : '404';
+        $page_name = file_exists('../pages/' . $_GET['page'] . '.php') ? str_replace('-', ' ', ucwords($_GET['page'])) : '404';
 
         return '<a href="' . BASE_URL . 'pages/home.php"> Home </a> > ' . $page_name;
     } else if ($fd) {
@@ -210,10 +210,10 @@ function timeAgo(int $timestamp)
         $label = $time . add_s($time, ' day') . ' ago';
     } else if ($time_difference >= (60 * 60)) {
         $time = floor($time_difference / (60 * 60));
-        $label = $time .add_s($time, ' hour'). ' ago';
+        $label = $time . add_s($time, ' hour') . ' ago';
     } else if ($time_difference >= 60) {
         $time = floor($time_difference / 60);
-        $label = $time . add_s($time, ' minute').' ago';
+        $label = $time . add_s($time, ' minute') . ' ago';
     } else if ($time_difference > 10) {
         $label = $time_difference . ' seconds ago';
     } else {
@@ -246,6 +246,7 @@ function get_file_icon($mime_type)
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'bx bxs-file-doc',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'bx bxs-file-ppt',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'bx bxs-file-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'bx bxs-file-excel',
         'audio/mpeg' => 'bx bxs-music',
         'audio/wav' => 'bx bxs-music',
         'video/mp4' => 'bx bxs-play',
@@ -298,4 +299,59 @@ function init_page()
 
 
     require_once '../pages/home-content.php';
+}
+
+function get_folder($fid, $check_owner=true)
+{
+    $obj =  ORM::for_table('folders')->where(array(
+        'is_deleted' => 0,
+        'uuid' => $fid,
+    ));
+
+    if($check_owner){
+        $obj->where('user_id', session()->get('user_id'));
+    }
+    
+    return $obj->find_one();
+}
+
+function increment_file_count($folder_uuid)
+{
+    // if ($folder_uuid == 0) return; //nothing to increment
+
+    $get_folder_obj = get_folder($folder_uuid);
+
+    if ($get_folder_obj->parent_id == 0) {
+        $get_folder_obj->files += 1;
+        $get_folder_obj->save();
+        return;
+    }
+
+    $all_folders = explode('/', $get_folder_obj->path);
+
+    foreach($all_folders as $v){
+
+        if(empty($v)) continue;
+
+        $folder = ORM::for_table('folders')->where('id', $v)->find_one();
+
+        $folder->files+=1;
+
+        $folder->save();
+    }
+    
+}
+
+function get_file($fid, $check_owner = true)
+{
+    $obj =  ORM::for_table('files')->where(array(
+        'is_deleted' => 0,
+        'uuid' => $fid,
+    ));
+
+    if($check_owner){
+        $obj->where('user_id', session()->get('user_id'));
+    }
+    
+    return $obj->find_one();
 }

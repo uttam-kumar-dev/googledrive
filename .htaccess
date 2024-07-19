@@ -1,0 +1,10 @@
+# Block direct access to all files within 'file_system' directory
+Options -Indexes
+
+RewriteEngine On
+
+# Rewrite rule for /d/ URLs
+RewriteRule ^d/([a-z0-9-]+)$ d.php?fid=$1 [QSA,L]
+
+
+
