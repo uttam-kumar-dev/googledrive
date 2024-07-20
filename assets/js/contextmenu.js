@@ -11,8 +11,8 @@
     }
 
     const setContextMenuPosition = (event) => {
-        let bodyWidth = mainBody.clientWidth;
-        let bodyHeight = mainBody.clientHeight;
+        let windowWidth = window.innerWidth;
+        let windowHeight = window.innerHeight;
 
         let contextMenuWidth = contextmenuelem.clientWidth;
         let contextMenuHeight = contextmenuelem.clientHeight;
@@ -20,15 +20,20 @@
         let cursorPositionX = event.pageX;
         let cursorPositionY = event.pageY;
 
-        let widthDiff = bodyWidth - cursorPositionX;
-        let heightDiff = window.innerHeight - cursorPositionY;
+        let widthDiff = windowWidth - cursorPositionX;
+        let heightDiff = windowHeight - cursorPositionY;
+
+        console.log('Cursor X : ' + cursorPositionX);
+        console.log('Body : '+ windowWidth);
+
+        console.log(widthDiff);
 
         if (widthDiff < 0) {
             contextmenuelem.style.left = `${(cursorPositionX + defaultPadding) - contextMenuWidth}px`;
         }
 
         else if (widthDiff < contextMenuWidth) {
-            contextmenuelem.style.left = `${cursorPositionX - widthDiff}px`;
+            contextmenuelem.style.left = `${(cursorPositionX - contextMenuWidth - defaultPadding) + widthDiff}px`;
         }
 
         if (heightDiff < contextMenuHeight) {
