@@ -207,5 +207,21 @@ a {
 }
 
 .c-menu-item:hover{
-    background: #efefef;
+    background: #eeeeee;
+}
+
+.menu-disabled{
+    background: #b1b1b1;
+    color: grey;
+    pointer-events: none;
+}
+
+.user_first_letter{
+    width: 40px;
+    height: 40px;
+    border-radius: 50px;
+    font-size: 22px;
+}
+.disabled-text{
+    color : #bababa;
 }
