@@ -10,7 +10,7 @@
     ?>
 
             <div class="col-xl-4 col-sm-6">
-                <div class="card shadow-none border">
+                <div class="card shadow-none border on-contextmenu" data-fid="<?= $f->uuid ?>">
                     <div class="card-body p-3" onclick="window.location.href='<?= BASE_URL ?>pages/home.php?fd=<?= $f->uuid ?>'">
                         <div class="">
                             <div class="d-flex justify-content-between align-items-center">
@@ -59,7 +59,7 @@
             foreach($files as $file){
             ?>
             <div class="col-xl-4 col-sm-6">
-                <div class="card shadow-none border">
+                <div class="card shadow-none border on-contextmenu" data-fid="<?= $file->uuid ?>">
                     <div class="card-body p-3" onclick="window.location.href='<?= BASE_URL ?>pages/home.php?f=<?= $file->uuid ?>'">
                         <div class="">
                             <div class="d-flex justify-content-between align-items-center">
