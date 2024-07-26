@@ -50,4 +50,15 @@
     //service for mark folder to starred
     $('body').on('click', '.starred_document', updateStarred);
 
+    $('body').on('click', '.card_folder',function() {
+
+        if($(this).hasClass('selected')){
+            $(this).removeClass('selected');
+            return;
+        }
+
+        $(this).addClass('selected');
+
+    })
+
 })(BASE_URL);

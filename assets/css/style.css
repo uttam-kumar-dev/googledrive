@@ -225,3 +225,6 @@ a {
 .disabled-text{
     color : #bababa;
 }
+.selected{
+    background: #f2f1f7;
+}

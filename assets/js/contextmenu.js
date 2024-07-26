@@ -6,8 +6,11 @@
     document.onclick = hideContextMenu;
     document.oncontextmenu = showContextMenu;
 
+    var current_selector = '';
+
     const getOffsetParent = (event) => {
-        return event.srcElement.offsetParent;
+        current_selector = event.srcElement.offsetParent;
+        return current_selector;
     }
 
     const setContextMenuPosition = (event) => {
@@ -80,6 +83,14 @@
 
         // console.log(event.srcElement.offsetParent);
     }
+
+    //menu functions
+
+    $('body').on('click','.context_starred', function(){
+        
+        let fid = current_selector.getAttribute('data-fid');
+        
+    });
 
 })(BASE_URL);
 
