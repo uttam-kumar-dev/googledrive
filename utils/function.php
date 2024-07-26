@@ -106,6 +106,43 @@ function redirect($page_name)
 }
 
 
+function foldertree($fd, $pagename = ''){
+    $check = ORM::for_table('folders')->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->where('uuid', $fd)->find_one();
+    $breadcrumbs = '';
+    if (!$check) {
+        
+        return $breadcrumbs .= ' > 404';
+    }
+
+    $folder_path = $check->path;
+
+    if ($folder_path == '/' . $check->id) {
+        return $breadcrumbs .= ' > ' . $check->title;
+    }
+
+    $folders = array_values(array_filter(explode('/', $folder_path)));
+
+    $get_folders = ORM::for_table('folders')->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->where_id_in($folders)->order_by_asc('id')->find_many();
+
+    if ($get_folders->count() > 0) {
+        $folder_count = $get_folders->count();
+        foreach ($get_folders as $k =>  $f) {
+
+            if ($folder_count == $k + 1) {
+                $breadcrumbs .= ' > ' . $f->title;
+                break;
+            }
+            $breadcrumbs .= ' > <a href="' . BASE_URL . 'pages/home.php?page='.$pagename.'&fd=' . $f->uuid . '">' . $f->title . '</a>';
+        }
+    }
+
+    return $breadcrumbs;
+}
+
+function get_page_link($page_name){
+    return '<a href="'.BASE_URL.'pages/home.php?page='.$_GET['page'].'">'.$page_name.'</a>';
+}
+
 function breadcrumbs()
 {
 
@@ -120,40 +157,17 @@ function breadcrumbs()
 
         $page_name = file_exists('../pages/' . $_GET['page'] . '.php') ? str_replace('-', ' ', ucwords($_GET['page'])) : '404';
 
+        if($fd){
+        return '<a href="' . BASE_URL . 'pages/home.php"> Home </a> > ' . get_page_link($page_name).foldertree($fd, 'my-drive');
+        }
+
         return '<a href="' . BASE_URL . 'pages/home.php"> Home </a> > ' . $page_name;
     } else if ($fd) {
 
-        $check = ORM::for_table('folders')->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->where('uuid', $fd)->find_one();
-        if (!$check) {
-            $breadcrumbs = '<a href="' . BASE_URL . 'pages/home.php">Home</a>';
-            return $breadcrumbs .= ' > 404';
-        }
+        $breadcrumbs = '<a href="' . BASE_URL . 'pages/home.php">Home</a>';
 
-        $folder_path = $check->path;
-
-        if ($folder_path == '/' . $check->id) {
-            $breadcrumbs = '<a href="' . BASE_URL . 'pages/home.php">Home</a>';
-            return $breadcrumbs .= ' > ' . $check->title;
-        }
-
-        $folders = array_values(array_filter(explode('/', $folder_path)));
-
-        $get_folders = ORM::for_table('folders')->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->where_id_in($folders)->order_by_asc('id')->find_many();
-
-        if ($get_folders->count() > 0) {
-            $breadcrumbs = '<a href="' . BASE_URL . 'pages/home.php">Home</a>';
-            $folder_count = $get_folders->count();
-            foreach ($get_folders as $k =>  $f) {
-
-                if ($folder_count == $k + 1) {
-                    $breadcrumbs .= ' > ' . $f->title;
-                    break;
-                }
-                $breadcrumbs .= ' > <a href="' . BASE_URL . 'pages/home.php?fd=' . $f->uuid . '">' . $f->title . '</a>';
-            }
-        }
-
-        return $breadcrumbs;
+        $breadcrumbs.= foldertree($fd);
+       
     }
 
     return $breadcrumbs;

@@ -13,11 +13,12 @@
 
 
         foreach ($all_folders as $k => $f) {
+            $url = !@empty($_GET['page']) ? BASE_URL.'pages/home.php?page='.$_GET['page'].'&fd='.$f->uuid : BASE_URL.'pages/home.php?fd='.$f->uuid;
     ?>
 
             <div class="col-xl-4 col-sm-6">
                 <div class="card shadow-none border">
-                    <div class="card-body p-3" onclick="window.location.href='<?= BASE_URL ?>pages/home.php?fd=<?= $f->uuid ?>'">
+                    <div class="card-body p-3" ondblclick="window.location.href='<?= $url ?>'">
                         <div class="">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>

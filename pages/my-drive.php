@@ -3,7 +3,7 @@
 
     <?php
 
-
+        if(!isset($_GET['fd']) && empty($_GET['fd'])){
         $all_folders = ORM::for_table('folders')->where('parent_id', 0)->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->order_by_asc('id')->find_many();
 
         foreach ($all_folders as $k => $f) {
@@ -11,7 +11,7 @@
 
             <div class="col-xl-4 col-sm-6">
                 <div class="card shadow-none border on-contextmenu" data-fid="<?= $f->uuid ?>">
-                    <div class="card-body p-3" onclick="window.location.href='<?= BASE_URL ?>pages/home.php?fd=<?= $f->uuid ?>'">
+                    <div class="card-body p-3" ondblclick="window.location.href='<?= BASE_URL ?>pages/home.php?page=my-drive&fd=<?= $f->uuid ?>'">
                         <div class="">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -104,6 +104,10 @@
     <?php 
         }if (count($all_folders) == 0 && count($files) == 0) {
             require_once 'no-content.php';
+        }}else{
+            
+            require_once './folders.php';
+            require_once './files.php';
         }
  ?>
 
