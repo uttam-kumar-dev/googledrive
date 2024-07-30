@@ -17,6 +17,21 @@
         return current_selector;
     }
 
+    const handleMenuServices = (elem) => {
+
+        let attr = elem.getAttribute('data-isstarred');
+
+        if(attr === null) return;
+
+        if(attr == 0){
+            contextmenuelem.querySelector('.context_starred').lastElementChild.innerText = 'Starred';
+            return;
+        }
+
+        contextmenuelem.querySelector('.context_starred').lastElementChild.innerText = 'Unstarred';
+
+    }
+
     const setContextMenuPosition = (event) => {
         let windowWidth = window.innerWidth;
         let windowHeight = window.innerHeight;
@@ -73,6 +88,7 @@
                 contextmenuelem.style.left = `${event.pageX}px`;
                 contextmenuelem.style.display = 'block';
                 setContextMenuPosition(event);
+                handleMenuServices(elem);
                 return;
             }
         }
