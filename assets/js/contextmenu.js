@@ -8,7 +8,11 @@
 
     var current_selector = '';
 
-    const getOffsetParent = (event) => {
+    const getOffsetParent = (event, update_current_selector = true) => {
+
+        if(!update_current_selector){
+            return event.srcElement.offsetParent;
+        }
         current_selector = event.srcElement.offsetParent;
         return current_selector;
     }
@@ -26,11 +30,6 @@
         let widthDiff = windowWidth - cursorPositionX;
         let heightDiff = windowHeight - cursorPositionY;
 
-        console.log('Cursor X : ' + cursorPositionX);
-        console.log('Body : '+ windowWidth);
-
-        console.log(widthDiff);
-
         if (widthDiff < 0) {
             contextmenuelem.style.left = `${(cursorPositionX + defaultPadding) - contextMenuWidth}px`;
         }
@@ -47,7 +46,7 @@
 
     function hideContextMenu(event) {
 
-        let elem = getOffsetParent(event);
+        let elem = getOffsetParent(event, false);
 
         if (!elem) {
             contextmenuelem.style.display = 'none';
@@ -86,10 +85,11 @@
 
     //menu functions
 
-    $('body').on('click','.context_starred', function(){
-        
-        let fid = current_selector.getAttribute('data-fid');
-        
+    $('body').on('click','.context_starred', function(event){
+        event.current = current_selector;
+        window.updateStarred(event);
+
+        console.log(event);
     });
 
 })(BASE_URL);

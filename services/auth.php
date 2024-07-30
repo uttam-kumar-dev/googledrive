@@ -37,6 +37,7 @@ if (isset($_POST['email'], $_POST['name'], $_POST['password']) && !any_empty($_P
     session()->set($session_data);
 
     header('location:../pages/home.php');
+    exit;
 }
 
 if (isset($_POST['email'], $_POST['password']) && !any_empty($_POST['email'], $_POST['password'])) {
@@ -63,6 +64,7 @@ if (isset($_POST['email'], $_POST['password']) && !any_empty($_POST['email'], $_
     session()->set($session_data);
 
     header('location:../pages/home.php');
+    exit;
 }
 
 if(isset($_GET['logout'])){
