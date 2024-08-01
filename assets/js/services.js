@@ -191,7 +191,22 @@
 
         $('#'+val).css('display','block');
 
-    })
+    });
+
+    $('body').on('submit', '#file_share_form', function(event){
+        event.preventDefault();
+        $.ajax({
+            url : BASE_URL+'services/share.php',
+            type : 'POST',
+            data : $(this).serialize(),
+            success : function(data){
+                data = JSON.parse(data);
+
+                toast('notification', data.msg).show();
+            }
+        })
+
+    });
 
     //register some function to global scope
     global.updateStarred = updateStarred;
