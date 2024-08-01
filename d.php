@@ -1,6 +1,7 @@
 <?php
 require_once 'config/config.php';
 require_once 'class/AccessControl.php';
+require_once 'class/FilePreview.php';
 
 if(!isset($_GET['fid']) || empty($_GET['fid'])){
     header('location:404.php');
@@ -28,9 +29,11 @@ if(!$check_is_folder){
 }
 
 if(!$file_obj){
-    header('location:404.php');
+    header('location:/404.php');
     exit;
 }
+
+
 
 $access = new AccessControl($file_obj, $user_id);
 $read_status = $access->canRead();
@@ -50,7 +53,17 @@ if($read_status == AccessControl::AUTHENTICATION_NEEDED){
 
 if($read_status == AccessControl::YES){
 
-    //logic for zipping and sending file to browser
+$file_path = 'file_system/user_'.$access->get_user_id().'/';
+
+if(isset($file_obj->folder_id) && $file_obj->folder_id > 0){
+    $file_path.= 'FOLDER_ID_'.$file_obj->folder_id.'_'.$file_obj->title;
+}else{
+    $file_path.= $file_obj->title;
+}
+
+$f = new FilePreview($file_path, 'txt', $file_obj->uuid);
+
+$f->buildPreview();
     
 
 }

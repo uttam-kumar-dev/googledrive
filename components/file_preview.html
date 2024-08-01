@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{#FILENAME#} - Preview</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            /* font-family: 'Times New Roman', Times, serif; */
+        }
+
+        header {
+            background: #e5e4e4;
+            height: 50px;
+            display: flex;
+            justify-content: space-around;
+            padding: .5rem;
+        }
+
+        header button {
+            outline: none;
+            background: blue;
+            border: none;
+            transition: all ease .5s;
+            border-radius: 7px;
+            height: 45px;
+            width: 143px;
+            color: #fff;
+        }
+
+        header button:hover {
+            background: #4e85ff;
+            color: #fff;
+            border: 1px solid blue;
+        }
+
+        header h4 {
+            margin: 0;
+            line-height: 50px;
+        }
+        .content{
+            margin-top: .5rem !important;
+            width: 50%;
+            margin:auto;
+            max-height: 100vh;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h4>{#FILENAME#} - Preview</h4>
+        <button href="{#DOWNLOAD_LINK#}">Download</button>
+    </header>
+
+    <div class="content">
+        {#CONTENT#}
+    </div>
+
+</body>
+
+</html>
