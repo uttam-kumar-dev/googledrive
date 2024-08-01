@@ -127,10 +127,6 @@ if (isset($_POST['share_list'], $_POST['fid'], $_POST['file_access_level']) && !
     $file_level = $_POST['file_access_level'];
     $fid = $_POST['fid'];
 
-    if ($file_level == 'restricted' && empty($share_list)) {
-        sendErrorResponse(['msg' => 'No people added to share the file']);
-    }
-
     $share_list = array_map('trim',explode(',', $share_list));
 
     $type = get_file($fid) ? 1 : 0;
@@ -163,6 +159,21 @@ if (isset($_POST['share_list'], $_POST['fid'], $_POST['file_access_level']) && !
         );
 
         $c->save();
+    }
+
+    if($file_level == 'restricted'){
+
+        foreach(
+                ORM::for_table('file_sharing_access')->where('user_id', session()->get('user_id'))->where('file_id',$fid)->where('share_with',0)->find_many()
+                as
+                $item
+            )
+            {
+
+                $item->delete();
+
+            }
+
     }
 
     if ($file_level == 'anyone') {
