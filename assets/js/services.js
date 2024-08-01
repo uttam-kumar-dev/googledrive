@@ -1,5 +1,7 @@
 (function (BASE_URL, global) {
 
+    var mini_spinner = `<div class="spinner-border spinner-border-sm text-primary" role="status"></div>`;
+
     const toast = (elem_id, msg='') => {
         const toast_dom = document.getElementById(elem_id)
         const toast = new bootstrap.Toast(toast_dom);
@@ -11,6 +13,14 @@
 
     const getNodeType = (event) => {
         return event.target.nodeName;
+    }
+
+    const modal = (modal_selector) => {
+        return new bootstrap.Modal(document.querySelector(modal_selector));
+    }
+
+    const getRow = (obj) => {
+        return obj.closest('tr');
     }
 
     const handleStarredIcon = (event, response = null) => {
@@ -100,6 +110,35 @@
 
     }
 
+    const shareFiles = (event) => {
+        console.log(event.currentTarget)
+        event.currentTarget.classList.add('pe-none');
+        let share_modal = modal('#share_files');
+
+        $.ajax({
+            type : 'POST',
+            url : BASE_URL+'services/share.php',
+            data : handleOtherNode(event),
+            success : function(response){
+                response = JSON.parse(response);
+                event.currentTarget.classList.remove('pe-none');
+                if(response.status == 'success'){
+                    share_modal.show();
+                    $('#append_share_content').html(response.msg);
+                    return;
+                }else if(response.status == 'error'){
+                    alert(response.msg);
+                }
+
+            },
+            error : function(xhr, textstatus, err){
+                alert(err);
+            }
+        })
+
+
+    }
+
     //service for mark folder to starred
     $('body').on('click', '.starred_document', updateStarred);
 
@@ -114,7 +153,48 @@
 
     });
 
+   
+    $('body').on('click','.remove_file_access', function(){
+
+        let row = getRow($(this));
+
+        let __ref = $(this);
+
+        __ref.addClass('pe-none');
+
+        __ref.html(mini_spinner);
+
+        $.ajax({
+            url : BASE_URL+'services/share.php',
+            type : 'POST',
+            data : {share_id:row.attr('data-shareid'), action : 'remove'},
+            success : function(data){
+                data = JSON.parse(data);
+                if(data.status == 'success'){
+                    row.remove();
+                }else{
+                    __ref.removeClass('pe-none');
+                    __ref.html('Remove');
+                    alert(data.msg);
+                }
+            }
+        });
+
+
+    });
+
+    $('body').on('change', '#file_access_dropdown', function(){
+
+        let val = $(this).val();
+
+        $('.file_access_helper_text').css('display','none');
+
+        $('#'+val).css('display','block');
+
+    })
+
     //register some function to global scope
     global.updateStarred = updateStarred;
+    global.shareFiles = shareFiles;
 
 })(BASE_URL, window);

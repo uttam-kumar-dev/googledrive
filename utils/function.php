@@ -369,3 +369,20 @@ function get_file($fid, $check_owner = true)
     
     return $obj->find_one();
 }
+
+function sendErrorResponse(array $data){
+
+    exit(json_encode(array_merge(['status'=>'error'], $data)));
+
+}
+
+function sendSuccessResponse(array $data){
+
+    exit(json_encode(array_merge(['status'=>'success'], $data)));
+
+}
+
+function generatelink($id){
+
+    return BASE_URL.'d/'.$id;
+}

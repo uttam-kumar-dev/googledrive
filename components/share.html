@@ -1,57 +1,8 @@
 <!-- Modal for sharing files -->
 <div class="modal" tabindex="-1" id="share_files">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" id="file_upload_form" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <h5 class="modal-title mb-3" id="modal_files_title">Share Files</h5>
-
-                    <input type="text" name="share_with" class="form-control" placeholder="Enter comma separated emails"
-                        style="height:50px;">
-
-                    <p class="fw-bold my-3">People with access</p>
-
-                    <table class="table align-middle table-nowrap table-hover mb-0">
-                        <tbody>
-                            <tr>
-                                <td style="width: 50px;">
-                                    <div class="user_first_letter d-flex justify-content-center align-items-center"
-                                        style="background-color: blue; color: white;">U</div>
-                                </td>
-
-                                <td class="w-100">
-                                    <p class="mb-0">Uttam Kumar</p>
-                                    <span style="font-size:14px;">Uttam@gmail.com</span>
-                                </td>
-
-                                <td>
-                                    <span class="disabled-text">Owner</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <p class="fw-bold mt-4">General access</p>
-
-                    <div class="d-flex align-items-center">
-                        <div class="user_first_letter d-flex justify-content-center align-items-center me-2"
-                            style="background: navajowhite;"><i class='bx bx-lock'></i></div>
-                        <div>
-                            <select class="form-control border-0 shadow-none">
-                                <option value="restricted">Restricted </option>
-                                <option value="anyone">Anyone with this link</option>
-                            </select>
-                            <span style="font-size: 11px;display: block;margin-top: -.4rem;margin-left: .7rem;" class="mt-n1">Only people with access can open with the link</span>
-                            <span style="font-size: 11px;display: block;margin-top: -.4rem;margin-left: .7rem;" class="mt-n1">Anyone on the internet with the link can view</span>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" data-bs-dismiss="modal" class="btn btn-outline-primary rounded-5"> <i class='bx bx-link-alt'></i> Copy link</button>
-                    <button type="submit" id="share_file_btn" data-bs-dismiss="modal" class="btn btn-primary rounded-5">Share</button>
-                </div>
-            </form>
+        <div class="modal-content" id="append_share_content">
+            
         </div>
     </div>
 </div>

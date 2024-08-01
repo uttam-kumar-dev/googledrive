@@ -101,12 +101,19 @@
 
     //menu functions
 
+    //when click on Starred
     $('body').on('click','.context_starred', function(event){
         event.current = current_selector;
         window.updateStarred(event);
 
         console.log(event);
     });
+
+    //when click on share
+    $('body').on('click', '.share_document', function(event){
+        event.current = current_selector;
+        window.shareFiles(event);
+    })
 
 })(BASE_URL);
 
