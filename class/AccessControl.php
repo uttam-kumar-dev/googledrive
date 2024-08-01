@@ -41,6 +41,8 @@ class AccessControl{
 
     public function canRead(){
 
+        $status = $this->have_permission();
+
         if($this->is_owner()){
             return true;
         }
@@ -49,7 +51,7 @@ class AccessControl{
             return self::PRIVATE_FILE;
         }
 
-        return $this->have_permission();
+        return $status;
 
     }
 

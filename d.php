@@ -37,15 +37,14 @@ if(!$file_obj){
 
 $access = new AccessControl($file_obj, $user_id);
 $read_status = $access->canRead();
-
 $read_file = false;
 
-if($read_status == AccessControl::PRIVATE_FILE){
+if($read_status === AccessControl::PRIVATE_FILE){
     header('location:404.php');
     exit;
 }
 
-if($read_status == AccessControl::AUTHENTICATION_NEEDED){
+if($read_status === AccessControl::AUTHENTICATION_NEEDED){
     session()->set('auth_needed', true);
     header('location:auth_needed.php');
     exit;
