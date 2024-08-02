@@ -1,7 +1,4 @@
 <?php
-
-require_once '../config/config.php';
-
 class FilePreview
 {
     private $text_file_extension = ['txt', 'php', 'js', 'png', 'jpg'];
@@ -14,13 +11,15 @@ class FilePreview
     private $file_id;
     private $dir_mapping = [];
     private $mime_type;
-    public function __construct($file, $file_obj)
+    private $db;
+    public function __construct($file, $file_obj, $db)
     {
         $this->file = $file;
-        $this->ext = $file_obj->extension;
+        $this->ext = $file_obj->file_extension;
         $this->file_obj = $file_obj;
         $this->file_id = $file_obj->uuid;
         $this->mime_type = $file_obj->file_type;
+        $this->db = $db;
     }
 
     private function is_previewable()
@@ -47,7 +46,6 @@ class FilePreview
     private function get_file_data()
     {
         $file_name = basename($this->file);
-
         if ($this->isImageFile()) {
             $content = '<img src="' . $this->file . '"/>';
         } else if ($this->isTextFile()) {
@@ -62,7 +60,7 @@ class FilePreview
     private function copyFiles($folder_id, $child_folder, $dirname)
     {
 
-        $check_files = ORM::for_table('files')->where('is_deleted', 0)->where('folder_id', $folder_id)->find_many();
+        $check_files = $this->db::for_table('files')->where('is_deleted', 0)->where('folder_id', $folder_id)->find_many();
 
         foreach ($check_files as $file) {
 
@@ -93,7 +91,7 @@ class FilePreview
 
     private function recursiveTraversal($folder_id, $dirname)
     {
-        $directories = ORM::for_table('folders')->where('parent_id', $folder_id)->where('is_deleted', 0)->find_many();
+        $directories = $this->db::for_table('folders')->where('parent_id', $folder_id)->where('is_deleted', 0)->find_many();
 
         foreach ($directories as $dir) {
 
@@ -123,7 +121,7 @@ class FilePreview
             }
             mkdir($dirname . '/', 0755, true);
 
-            $folder = ORM::for_table('folders')->where('id', $this->file_obj->id)->find_one();
+            $folder = $this->db::for_table('folders')->where('id', $this->file_obj->id)->find_one();
             $child_folder = $folder->title . '/';
 
             mkdir($dirname . '/' . $child_folder, 0755, true);
@@ -151,17 +149,60 @@ class FilePreview
         $zip->zipAndStreamDirectory();
 
     }
+    
+    private function fileDownload(){
+        header('Content-Description: File Transfer');
+        header('Content-Type: '.$this->file_obj->file_type);
+        header('Content-Disposition: attachment; filename="'.basename($this->file_obj->title).'"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($this->file));
+
+        readfile($this->file);
+    }
 
     public function download()
     {
+        if(!$this->is_dir()){
+            $this->fileDownload();
+            die;
+        }
 
         $this->manageFileOrFolder();
 
     }
 
+    private function buildDirectoryPreview($data){
+
+        $fd_id = $this->file_obj->uuid;
+
+        ob_start();
+
+        include_once "../components/directory_preview.php";
+
+        $data_render = ob_get_clean();
+
+        echo str_replace($this->file_variable, ['ABCD', $data_render, 'OK'], $data);
+
+    }
+
+    private function is_dir() : bool {
+        return !isset($this->file_obj->file_type);
+    }
+
     public function buildPreviewOrDownload()
     {
         $data = file_get_contents(DOC_PATH . 'components/file_preview.html');
+
+        if($this->is_dir()){
+            $this->buildDirectoryPreview($data);
+            die;
+        }
+
+        if(!$this->is_previewable()){
+            $this->download();
+        }
 
         $final_output = str_replace($this->file_variable, $this->get_file_data(), $data);
 
@@ -175,10 +216,3 @@ class FilePreview
         }
     }
 }
-
-$file_path = 'file_system/user_5/';
-$file_obj = get_folder('b3d9ae39-80ec-4bc5-96af-32b3336c76fb', false);
-
-$test = new FilePreview($file_path, $file_obj);
-
-$test->download();

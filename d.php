@@ -60,9 +60,9 @@ if(isset($file_obj->folder_id) && $file_obj->folder_id > 0){
     $file_path.= $file_obj->title;
 }
 
-$f = new FilePreview($file_path, 'txt', $file_obj->uuid);
+$f = new FilePreview($file_path, $file_obj, ORM::class);
 
-$f->buildPreview();
+$f->buildPreviewOrDownload();
     
 
 }

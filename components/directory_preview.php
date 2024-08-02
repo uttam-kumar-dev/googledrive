@@ -1,23 +1,23 @@
-<h5 class="font-size-16 me-3 mb-0">Folders</h5>
+<?php 
+require_once '../utils/function.php';
+?>
 <div class="row mt-4">
 
     <?php
 
-    $fd_id = isset($_GET['fd']) ? clean($_GET['fd']) : $;
-
-    $check = ORM::for_table('folders')->where('uuid', $fd_id)->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->find_one();
+    $check = ORM::for_table('folders')->where('uuid', $fd_id)->where('is_deleted', 0)->find_one();
 
     if ($check) {
 
-        $all_folders = ORM::for_table('folders')->where('parent_id', $check->id)->where_not_like('path', '%a%')->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->order_by_asc('id')->find_many();
+        $all_folders = ORM::for_table('folders')->where('parent_id', $check->id)->where('is_deleted', 0)->order_by_asc('id')->find_many();
 
 
         foreach ($all_folders as $k => $f) {
-            $url = !@empty($_GET['page']) ? BASE_URL.'pages/home.php?page='.$_GET['page'].'&fd='.$f->uuid : BASE_URL.'pages/home.php?fd='.$f->uuid;
+            $url = BASE_URL.'d/'.$fd_id.'?child='.$f->uuid;
     ?>
 
             <div class="col-xl-4 col-sm-6">
-                <div class="card shadow-none border card_folder on-contextmenu" data-fid="<?= $f->uuid ?>" data-type="folder">
+                <div class="card shadow-none border">
                     <div class="card-body p-3" ondblclick="window.location.href='<?= $url ?>'">
                         <div class="">
                             <div class="d-flex justify-content-between align-items-center">
@@ -68,8 +68,8 @@
             foreach($files as $file){
             ?>
             <div class="col-xl-4 col-sm-6">
-                <div class="card shadow-none border on-contextmenu" data-fid="<?= $file->uuid ?>" data-type="file">
-                    <div class="card-body p-3" onclick="window.location.href='<?= BASE_URL ?>pages/home.php?f=<?= $file->uuid ?>'">
+                <div class="card shadow-none border">
+                    <div class="card-body p-3">
                         <div class="">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -112,11 +112,11 @@
             </div>
     <?php 
         }if (count($all_folders) == 0 && count($files) == 0) {
-            require_once 'no-content.php';
+            echo 'Empty';
         }
     } else {
 
-        require_once '404.php';
+        echo 'Invalid path';
     } ?>
 
 </div>
