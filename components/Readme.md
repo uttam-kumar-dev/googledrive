@@ -1,1 +1,0 @@
-These file does not contain any PHP code, because these are standalone files, and altered by JavaScript or any fancy ajax call

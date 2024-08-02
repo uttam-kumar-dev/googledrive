@@ -3,7 +3,7 @@
 
     <?php
 
-    $fd_id = isset($_GET['fd']) ? clean($_GET['fd']) : $;
+    $fd_id = clean($_GET['fd']);
 
     $check = ORM::for_table('folders')->where('uuid', $fd_id)->where('is_deleted', 0)->where('user_id', session()->get('user_id'))->find_one();
 

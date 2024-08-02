@@ -26,7 +26,6 @@ class AccessControl{
 
         $file = ORM::for_table('file_sharing_access')->where('file_id', $this->file_obj->uuid)->find_one();
 
-
         if(!$file) return false;
 
         $this->original_user = $file->user_id;

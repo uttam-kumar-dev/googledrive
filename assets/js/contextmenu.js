@@ -20,6 +20,12 @@
     const handleMenuServices = (elem) => {
 
         let attr = elem.getAttribute('data-isstarred');
+        let fd = elem.getAttribute('data-fid');
+
+
+        if(fd){
+            contextmenuelem.querySelector('.download_document').lastElementChild.innerHTML = `<a target="blank" class="text-decoration-none" href="${BASE_URL}services/download.php?d=1&fd=${fd}">Download</a>`;
+        }
 
         if(attr === null) return;
 
@@ -27,6 +33,7 @@
             contextmenuelem.querySelector('.context_starred').lastElementChild.innerText = 'Starred';
             return;
         }
+
 
         contextmenuelem.querySelector('.context_starred').lastElementChild.innerText = 'Unstarred';
 

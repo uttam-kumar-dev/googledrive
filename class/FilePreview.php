@@ -190,6 +190,7 @@ class FilePreview
     private function is_dir() : bool {
         return !isset($this->file_obj->file_type);
     }
+    
 
     public function buildPreviewOrDownload()
     {
