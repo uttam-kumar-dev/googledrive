@@ -24,7 +24,7 @@
 
 
         if(fd){
-            contextmenuelem.querySelector('.download_document').lastElementChild.innerHTML = `<a target="blank" class="text-decoration-none" href="${BASE_URL}services/download.php?d=1&fd=${fd}">Download</a>`;
+            contextmenuelem.querySelector('.download_document').lastElementChild.innerHTML = `<a target="blank" class="text-reset" href="${BASE_URL}services/download.php?d=1&fd=${fd}">Download</a>`;
         }
 
         if(attr === null) return;

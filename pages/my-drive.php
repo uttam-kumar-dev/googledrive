@@ -1,3 +1,11 @@
+<?php
+
+require_once '../class/FilePreview.php';
+
+
+
+?> 
+
 <h5 class="font-size-16 me-3 mb-0">My Drive</h5>
 <div class="row mt-4">
 
@@ -57,14 +65,18 @@
 
             $files = ORM::for_table('files')->where('user_id', session()->get('user_id'))->where('is_deleted',0)->where('folder_id', 0)->find_many();
             foreach($files as $file){
+
+                $f_pr = new FilePreview($file, $file, ORM::class);
+
+                $is_preview = $f_pr->canPreview();
             ?>
             <div class="col-xl-4 col-sm-6">
                 <div class="card shadow-none border on-contextmenu" data-fid="<?= $file->uuid ?>" data-type="file" data-isStarred="<?= $file->is_starred ?>">
-                    <div class="card-body p-3" onclick="window.location.href='<?= BASE_URL ?>pages/home.php?f=<?= $file->uuid ?>'">
+                    <div class="card-body p-3" <?php if($is_preview){?> onclick="window.location.href='<?= BASE_URL ?>d/<?= $file->uuid ?>'" <?php } ?>>
                         <div class="">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <i class="<?= get_file_icon($file->file_type); ?> h1 mb-0 text-dark"></i>
+                                    <i class="<?= getIcon($file->file_extension); ?> h1 mb-0 text-dark"></i>
                                 </div>
                                 <div class="avatar-group">
                                     <div class="avatar-group-item">

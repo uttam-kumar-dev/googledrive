@@ -19,6 +19,11 @@ class AccessControl{
 
     private function is_owner(){
 
+        if($this->user_id){
+            $this->original_user = $this->user_id;
+
+        }
+
         return $this->file_obj->user_id == $this->user_id;
     }
 

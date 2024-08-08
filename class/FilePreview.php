@@ -2,7 +2,7 @@
 class FilePreview
 {
     private $text_file_extension = ['txt', 'php', 'js', 'png', 'jpg'];
-    private $image_file_extension = ['png', 'jpg'];
+    private $image_file_extension = ['png', 'jpg', 'jpeg'];
     private $file_variable = ['{#FILENAME#}', '{#CONTENT#}', '{#DOWNLOAD_LINK#}'];
     private $tmp_path = DOC_PATH . 'file_system/tmp/';
     private $file;
@@ -33,23 +33,23 @@ class FilePreview
         return $this->is_previewable();
     }
 
-    private function isImageFile()
+    public function isImageFile()
     {
         return in_array($this->ext, $this->image_file_extension);
     }
 
-    private function  isTextFile()
+    public function  isTextFile()
     {
         return in_array($this->ext, $this->text_file_extension);
     }
 
     private function get_file_data()
     {
-        $file_name = basename($this->file);
+        $file_name = str_replace('FOLDER_ID_'.$this->file_obj->folder_id.'_','',basename($this->file));
         if ($this->isImageFile()) {
-            $content = '<img src="' . $this->file . '"/>';
+            $content = '<img src="data:image/jpeg;base64,' . base64_encode(file_get_contents($this->file)) . '"/>';
         } else if ($this->isTextFile()) {
-            $content = '<pre>' . file_get_contents($this->file) . '</pre>';
+            $content = '<pre>' . htmlspecialchars(file_get_contents($this->file)) . '</pre>';
         }
 
         $download_url = BASE_URL . 'd/' . $this->file_id . '?d=1';

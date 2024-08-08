@@ -238,6 +238,30 @@ function timeAgo(int $timestamp)
     return $label;
 }
 
+function getIcon($ext = null){
+
+    if(!$ext) return 'bx bxs-folder';
+
+    $file_icons = [
+        'pdf' => 'bx bxs-file-pdf',
+        'msword' => 'bx bxs-file-doc',
+        'xlsx' => 'bx bxs-file-excel',
+        'docs' => 'bx bxs-file-doc',
+        'zip' => 'bx bx-briefcase-alt-2',
+        'jpeg' => 'bx bxs-file-image',
+        'png' => 'bx bxs-file-image',
+        'gif' => 'bx bxs-file-image',
+        'txt' => 'bx bxs-file',
+        'css' => 'bx bxs-file-code',
+        'html' => 'bx bxs-file-code',
+        'js' => 'bx bxs-file-code',
+        'sql' => 'bx bxs-coin-stack',
+        'php' => 'bx bxl-php bx-tada bx-rotate-90',
+    ];
+
+    return $file_icons[$ext]??'bx bx-question-mark';
+
+}
 function get_file_icon($mime_type)
 {
 

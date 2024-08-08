@@ -54,10 +54,8 @@ if($read_status == AccessControl::YES){
 
 $file_path = 'file_system/user_'.$access->get_user_id().'/';
 
-if(isset($file_obj->folder_id) && $file_obj->folder_id > 0){
+if(isset($file_obj->folder_id)){
     $file_path.= 'FOLDER_ID_'.$file_obj->folder_id.'_'.$file_obj->title;
-}else{
-    $file_path.= $file_obj->title;
 }
 
 $f = new FilePreview($file_path, $file_obj, ORM::class);
