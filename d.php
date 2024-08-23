@@ -64,3 +64,7 @@ $f->buildPreviewOrDownload();
     
 
 }
+
+if($read_status == AccessControl::NO){
+    exit('You are unable to read this file, because you don\'t have enough permission');
+}

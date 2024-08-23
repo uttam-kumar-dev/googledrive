@@ -14,7 +14,7 @@ function loadEnv($file)
         $value = trim($value);
         putenv("$key=$value");
         $_ENV[$key] = $value;
-        $_SERVER[$key] = $value;
+        $_SERVER['config'][$key] = $value;
     }
 }
 
